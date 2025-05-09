@@ -284,7 +284,7 @@ elif menu == "Downloadable Reports":
         df = pd.read_sql(f"SELECT * FROM {table}", conn)
         st.subheader(table.title())
         st.dataframe(df)
-    for table in ["payroll", "attendance", "exits"]:
+   for table in ["payroll", "attendance", "exits"]:
     df = pd.read_sql(f"SELECT * FROM {table}", conn)
     st.subheader(table.title())
     st.dataframe(df)
