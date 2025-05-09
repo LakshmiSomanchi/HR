@@ -1,14 +1,8 @@
-# Directory : HR internal 
-from django.db import models
-from django.contrib import admin
-from hr.models import Candidate, Interview
-import streamlit as st
-import os
-import django
-import datetime
-from io import BytesIO
-from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
+# Directory: pmu-user-management
+
+## 1. Django Backend Setup
+
+### pmu_user_mgmt/settings.py (partial)
 
 INSTALLED_APPS = [
     'django.contrib.admin',
