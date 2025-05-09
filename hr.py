@@ -1,112 +1,18 @@
-#Streamlit HR System (hr.py)
+# Final Complete Streamlit HR System (hr.py)
 
 import streamlit as st
 import sqlite3
 import datetime
 import os
 from io import BytesIO
+import pandas as pd
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 
 DB = "hr.db"
 ALLOWED_HR_EMAILS = ["rsomanchi@tns.org", "hr2@example.com"]
 
-# --- Login and Sidebar ---
-if "email" not in st.session_state:
-    with st.form("auth"):
-        email = st.text_input("Enter HR Email")
-        password = st.text_input("Password", type="password")
-        if st.form_submit_button("Login"):
-            if email in ALLOWED_HR_EMAILS and password == "hrsecure":
-                st.session_state["email"] = email
-            else:
-                st.error("Unauthorized email or password")
-    st.stop()
-
-if st.sidebar.button("Logout"):
-    st.session_state.clear()
-    st.experimental_rerun()
-
-st.sidebar.title("HR Dashboard")
-menu = st.sidebar.radio("Select Module", [
-    "Candidate Tracker", "Offer Tracker", "Employee Masterfile",
-    "Interview Assessment", "Post-Joining Uploads",
-    "Attendance & Leave Tracker", "Payroll Data Preparation",
-    "Exit Management Tracker", "Downloadable Reports",
-    "Admin Assets / Travel Requests", "Approvals Workflow"])
-
-# --- Connect DB ---
-conn = sqlite3.connect(DB)
-c = conn.cursor()
-
-# --- Candidate Tracker ---
-if menu == "Candidate Tracker":
-    st.title("Add Candidate")
-    with st.form("add_candidate"):
-        name = st.text_input("Name")
-        designation = st.text_input("Designation")
-        project = st.text_input("Project")
-        location = st.text_input("Location")
-        if st.form_submit_button("Save Candidate"):
-            c.execute("INSERT INTO candidates (name, designation, project, location) VALUES (?, ?, ?, ?)",
-                      (name, designation, project, location))
-            conn.commit()
-            st.success("Candidate added.")
-
-# --- Interview Assessment ---
-elif menu == "Interview Assessment":
-    st.title("Interview Assessment")
-    candidates = c.execute("SELECT id, name FROM candidates").fetchall()
-    candidate_dict = {n: i for i, n in candidates}
-    selected = st.selectbox("Select Candidate", list(candidate_dict))
-    if selected:
-        cid = candidate_dict[selected]
-        with st.form("interview_form"):
-            date = st.date_input("Date", datetime.date.today())
-            interviewer = st.text_input("Interviewer")
-            strengths = st.text_area("Strengths")
-            weaknesses = st.text_area("Weaknesses")
-            qualification = st.slider("Qualification", 1, 5, 3)
-            experience = st.slider("Experience", 1, 5, 3)
-            comm_written = st.slider("Written Communication", 1, 5, 3)
-            comm_oral = st.slider("Oral Communication", 1, 5, 3)
-            problem_solving = st.slider("Problem Solving", 1, 5, 3)
-            team_capabilities = st.slider("Team Capabilities", 1, 5, 3)
-            comparison = st.selectbox("Comparison", ["Below Par", "At Par", "Above Par"])
-            final_remarks = st.text_area("Final Remarks")
-            decision = st.selectbox("Decision", ["Recommended for Hire", "Reject", "On Hold"])
-            if st.form_submit_button("Save Interview"):
-                c.execute("""
-                    INSERT INTO interviews (candidate_id, date, interviewer, strengths, weaknesses,
-                    qualification, experience, comm_written, comm_oral, problem_solving,
-                    team_capabilities, comparison, final_remarks, decision)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """, (cid, str(date), interviewer, strengths, weaknesses, qualification, experience,
-                      comm_written, comm_oral, problem_solving, team_capabilities, comparison,
-                      final_remarks, decision))
-                conn.commit()
-
-                buffer = BytesIO()
-                p = canvas.Canvas(buffer, pagesize=letter)
-                y = 750
-                p.drawString(100, y, f"Interview Report: {selected}")
-                y -= 20
-                for label, val in {
-                    "Date": date, "Interviewer": interviewer,
-                    "Strengths": strengths, "Weaknesses": weaknesses,
-                    "Qualification": qualification, "Experience": experience,
-                    "Comm Written": comm_written, "Comm Oral": comm_oral,
-                    "Problem Solving": problem_solving, "Team Capabilities": team_capabilities,
-                    "Comparison": comparison, "Remarks": final_remarks, "Decision": decision
-                }.items():
-                    p.drawString(100, y, f"{label}: {val}")
-                    y -= 20
-                p.showPage()
-                p.save()
-                buffer.seek(0)
-                st.download_button("Download Interview PDF", data=buffer.getvalue(),
-                                   file_name=f"{selected}_interview.pdf")
-                TABLES = {
+TABLES = {
     "candidates": """
         CREATE TABLE IF NOT EXISTS candidates (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -135,31 +41,6 @@ elif menu == "Interview Assessment":
             decision TEXT
         )
     """,
-
-# --- Post Joining Uploads ---
-elif menu == "Post-Joining Uploads":
-    st.title("Upload Post-Joining Docs")
-    doc = st.file_uploader("Upload File")
-    if doc:
-        path = os.path.join("uploads", doc.name)
-        os.makedirs("uploads", exist_ok=True)
-        with open(path, "wb") as f:
-            f.write(doc.read())
-        st.success(f"Saved to {path}")
-
-# --- Downloadable Reports with Excel ---
-elif menu == "Downloadable Reports":
-    st.title("Download Reports")
-    for table in ["payroll", "attendance", "exits"]:
-        df = pd.read_sql(f"SELECT * FROM {table}", conn)
-        st.subheader(f"{table.title()} Report")
-        st.dataframe(df)
-        st.download_button(
-            f"Download {table} Report (Excel)",
-            df.to_excel(index=False, engine='openpyxl'),
-            file_name=f"{table}_report.xlsx"
-        )
-
     "offers": """
         CREATE TABLE IF NOT EXISTS offers (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -225,22 +106,26 @@ elif menu == "Downloadable Reports":
     """
 }
 
-def init_db():
-    with sqlite3.connect(DB) as conn:
-        for ddl in TABLES.values():
-            conn.execute(ddl)
+# Initialize DB
+with sqlite3.connect(DB) as conn:
+    for ddl in TABLES.values():
+        conn.execute(ddl)
 
-init_db()
-
+# --- Login ---
 if "email" not in st.session_state:
     with st.form("auth"):
         email = st.text_input("Enter HR Email")
+        password = st.text_input("Password", type="password")
         if st.form_submit_button("Login"):
-            if email in ALLOWED_HR_EMAILS:
+            if email in ALLOWED_HR_EMAILS and password == "hrsecure":
                 st.session_state["email"] = email
             else:
-                st.error("Unauthorized email")
+                st.error("Unauthorized email or password")
     st.stop()
+
+if st.sidebar.button("Logout"):
+    st.session_state.clear()
+    st.experimental_rerun()
 
 st.sidebar.title("HR Dashboard")
 menu = st.sidebar.radio("Select Module", [
@@ -250,23 +135,118 @@ menu = st.sidebar.radio("Select Module", [
     "Exit Management Tracker", "Downloadable Reports",
     "Admin Assets / Travel Requests", "Approvals Workflow"])
 
-# Reuse connection
 conn = sqlite3.connect(DB)
 c = conn.cursor()
 
-if menu == "Attendance & Leave Tracker":
+# Candidate Tracker
+if menu == "Candidate Tracker":
+    st.title("Add Candidate")
+    with st.form("add_candidate"):
+        name = st.text_input("Name")
+        designation = st.text_input("Designation")
+        project = st.text_input("Project")
+        location = st.text_input("Location")
+        if st.form_submit_button("Save Candidate"):
+            c.execute("INSERT INTO candidates (name, designation, project, location) VALUES (?, ?, ?, ?)",
+                      (name, designation, project, location))
+            conn.commit()
+            st.success("Candidate added.")
+
+# Offer Tracker
+elif menu == "Offer Tracker":
+    st.title("Offer Issuance")
+    with st.form("offer_form"):
+        candidate = st.text_input("Candidate Name")
+        offer_date = st.date_input("Offer Date")
+        offered_by = st.text_input("Offered By")
+        status = st.selectbox("Status", ["Issued", "Accepted", "Declined"])
+        if st.form_submit_button("Record Offer"):
+            c.execute("INSERT INTO offers (candidate, offer_date, offered_by, status) VALUES (?, ?, ?, ?)",
+                      (candidate, str(offer_date), offered_by, status))
+            conn.commit()
+            st.success("Offer recorded.")
+
+# Employee Masterfile
+elif menu == "Employee Masterfile":
+    st.title("Employee Master")
+    with st.form("employee_form"):
+        name = st.text_input("Name")
+        join_date = st.date_input("Joining Date")
+        department = st.text_input("Department")
+        status = st.selectbox("Status", ["Active", "Inactive"])
+        if st.form_submit_button("Add Employee"):
+            c.execute("INSERT INTO employees (name, join_date, department, status) VALUES (?, ?, ?, ?)",
+                      (name, str(join_date), department, status))
+            conn.commit()
+            st.success("Employee added.")
+
+# Interview Assessment
+elif menu == "Interview Assessment":
+    st.title("Interview Assessment")
+    candidates = c.execute("SELECT id, name FROM candidates").fetchall()
+    candidate_dict = {n: i for i, n in candidates}
+    selected = st.selectbox("Select Candidate", list(candidate_dict))
+    if selected:
+        cid = candidate_dict[selected]
+        with st.form("interview_form"):
+            date = st.date_input("Date", datetime.date.today())
+            interviewer = st.text_input("Interviewer")
+            strengths = st.text_area("Strengths")
+            weaknesses = st.text_area("Weaknesses")
+            qualification = st.slider("Qualification", 1, 5, 3)
+            experience = st.slider("Experience", 1, 5, 3)
+            comm_written = st.slider("Written Communication", 1, 5, 3)
+            comm_oral = st.slider("Oral Communication", 1, 5, 3)
+            problem_solving = st.slider("Problem Solving", 1, 5, 3)
+            team_capabilities = st.slider("Team Capabilities", 1, 5, 3)
+            comparison = st.selectbox("Comparison", ["Below Par", "At Par", "Above Par"])
+            final_remarks = st.text_area("Final Remarks")
+            decision = st.selectbox("Decision", ["Recommended for Hire", "Reject", "On Hold"])
+            if st.form_submit_button("Save Interview"):
+                c.execute("""
+                    INSERT INTO interviews (candidate_id, date, interviewer, strengths, weaknesses, qualification, experience, comm_written, comm_oral, problem_solving, team_capabilities, comparison, final_remarks, decision)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, (cid, str(date), interviewer, strengths, weaknesses, qualification, experience, comm_written, comm_oral, problem_solving, team_capabilities, comparison, final_remarks, decision))
+                conn.commit()
+                buffer = BytesIO()
+                p = canvas.Canvas(buffer, pagesize=letter)
+                y = 750
+                for label, val in {
+                    "Candidate": selected, "Date": date, "Interviewer": interviewer, "Strengths": strengths, "Weaknesses": weaknesses, "Qualification": qualification, "Experience": experience, "Comm. Written": comm_written, "Comm. Oral": comm_oral, "Problem Solving": problem_solving, "Team Capabilities": team_capabilities, "Comparison": comparison, "Remarks": final_remarks, "Decision": decision
+                }.items():
+                    p.drawString(100, y, f"{label}: {val}")
+                    y -= 20
+                p.showPage()
+                p.save()
+                buffer.seek(0)
+                st.download_button("Download Interview PDF", data=buffer.getvalue(), file_name=f"{selected}_interview.pdf")
+
+# Post Joining Uploads
+elif menu == "Post-Joining Uploads":
+    st.title("Upload Post-Joining Documents")
+    doc = st.file_uploader("Upload File")
+    if doc:
+        os.makedirs("uploads", exist_ok=True)
+        path = os.path.join("uploads", doc.name)
+        with open(path, "wb") as f:
+            f.write(doc.read())
+        st.success(f"Saved to {path}")
+
+# Attendance
+elif menu == "Attendance & Leave Tracker":
     st.title("Attendance Tracking")
     with st.form("attendance_form"):
-        emp = st.text_input("Employee Name")
+        emp = st.text_input("Employee")
         date = st.date_input("Date")
         present = st.checkbox("Present", value=True)
-        leave_type = st.selectbox("Leave Type", ["None", "Sick Leave", "Casual Leave", "Earned Leave"])
-        if st.form_submit_button("Mark Attendance"):
+        leave = st.selectbox("Leave Type", ["None", "Sick Leave", "Casual Leave", "Earned Leave"])
+        if st.form_submit_button("Save Attendance"):
             c.execute("INSERT INTO attendance (employee, date, present, leave_type) VALUES (?, ?, ?, ?)",
-                      (emp, str(date), int(present), leave_type))
+                      (emp, str(date), int(present), leave))
             conn.commit()
             st.success("Attendance saved.")
 
+# Payroll
 elif menu == "Payroll Data Preparation":
     st.title("Payroll Calculator")
     with st.form("payroll_form"):
@@ -275,14 +255,15 @@ elif menu == "Payroll Data Preparation":
         base = st.number_input("Base Salary", 0.0)
         pf = base * 0.12
         esic = base * 0.0325
-        total = base - (pf + esic)
-        st.write(f"PF: {pf:.2f} | ESIC: {esic:.2f} | Net: {total:.2f}")
+        total = base - pf - esic
+        st.write(f"PF: {pf:.2f} | ESIC: {esic:.2f} | Net Salary: {total:.2f}")
         if st.form_submit_button("Save Payroll"):
             c.execute("INSERT INTO payroll (employee, month, base_salary, pf, esic, total_salary) VALUES (?, ?, ?, ?, ?, ?)",
                       (emp, month, base, pf, esic, total))
             conn.commit()
             st.success("Payroll record saved.")
 
+# Exit
 elif menu == "Exit Management Tracker":
     st.title("Exit Tracker")
     with st.form("exit_form"):
@@ -295,37 +276,40 @@ elif menu == "Exit Management Tracker":
             conn.commit()
             st.success("Exit recorded.")
 
+# Reports
 elif menu == "Downloadable Reports":
-    st.title("Download Reports")
+    st.title("Reports")
     for table in ["payroll", "attendance", "exits"]:
-        st.markdown(f"#### {table.capitalize()} Report")
-        rows = c.execute(f"SELECT * FROM {table}").fetchall()
-        if rows:
-            st.dataframe(rows)
+        df = pd.read_sql(f"SELECT * FROM {table}", conn)
+        st.subheader(table.title())
+        st.dataframe(df)
+        st.download_button(f"Download {table} (Excel)", df.to_excel(index=False), file_name=f"{table}.xlsx")
 
+# Assets / Travel
 elif menu == "Admin Assets / Travel Requests":
     st.title("Assets / Travel")
     with st.form("asset_form"):
         emp = st.text_input("Employee")
-        asset = st.text_input("Asset/Request")
+        asset = st.text_input("Asset or Request")
         status = st.selectbox("Status", ["Assigned", "Returned", "In Process"])
         if st.form_submit_button("Save"):
-            c.execute("INSERT INTO assets (employee, asset, status) VALUES (?, ?, ?)", (emp, asset, status))
+            c.execute("INSERT INTO assets (employee, asset, status) VALUES (?, ?, ?)",
+                      (emp, asset, status))
             conn.commit()
-            st.success("Saved.")
+            st.success("Asset recorded.")
 
+# Approvals
 elif menu == "Approvals Workflow":
     st.title("Approvals")
     with st.form("approval_form"):
         req_type = st.selectbox("Request Type", ["Leave", "Travel", "Payroll Adjustment"])
         requested_by = st.text_input("Requested By")
-        approved_by = st.text_input("Approver")
+        approved_by = st.text_input("Approved By")
         status = st.selectbox("Status", ["Pending", "Approved", "Rejected"])
         if st.form_submit_button("Submit Request"):
             c.execute("INSERT INTO approvals (request_type, requested_by, approved_by, status) VALUES (?, ?, ?, ?)",
                       (req_type, requested_by, approved_by, status))
             conn.commit()
-            st.success("Approval logged.")
+            st.success("Approval submitted.")
 
 conn.close()
-
