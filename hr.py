@@ -11,52 +11,6 @@ from reportlab.lib.pagesizes import letter
 DB = "hr.db"
 ALLOWED_HR_EMAILS = ["rsomanchi@tns.org", "hr2@example.com"]
 
-TABLES = {
-    "candidates": """
-        CREATE TABLE IF NOT EXISTS candidates (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT,
-            designation TEXT,
-            project TEXT,
-            location TEXT
-        )
-    """,
-    "interviews": """
-        CREATE TABLE IF NOT EXISTS interviews (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            candidate_id INTEGER,
-            date TEXT,
-            interviewer TEXT,
-            strengths TEXT,
-            weaknesses TEXT,
-            qualification INTEGER,
-            experience INTEGER,
-            comm_written INTEGER,
-            comm_oral INTEGER,
-            problem_solving INTEGER,
-            team_capabilities INTEGER,
-            comparison TEXT,
-            final_remarks TEXT,
-            decision TEXT
-        )
-    """,
-    # ✅ Complete Streamlit HR System (hr.py)
-
-```python
-import streamlit as st
-import sqlite3
-import datetime
-import os
-from io import BytesIO
-import pandas as pd
-from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import letter
-
-DB = "hr.db"
-ALLOWED_HR_EMAILS = ["hr1@example.com", "hr2@example.com"]
-
-# ... (existing TABLES and init_db same as previous state)
-
 # --- Login and Sidebar ---
 if "email" not in st.session_state:
     with st.form("auth"):
@@ -152,6 +106,35 @@ elif menu == "Interview Assessment":
                 buffer.seek(0)
                 st.download_button("Download Interview PDF", data=buffer.getvalue(),
                                    file_name=f"{selected}_interview.pdf")
+                TABLES = {
+    "candidates": """
+        CREATE TABLE IF NOT EXISTS candidates (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT,
+            designation TEXT,
+            project TEXT,
+            location TEXT
+        )
+    """,
+    "interviews": """
+        CREATE TABLE IF NOT EXISTS interviews (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            candidate_id INTEGER,
+            date TEXT,
+            interviewer TEXT,
+            strengths TEXT,
+            weaknesses TEXT,
+            qualification INTEGER,
+            experience INTEGER,
+            comm_written INTEGER,
+            comm_oral INTEGER,
+            problem_solving INTEGER,
+            team_capabilities INTEGER,
+            comparison TEXT,
+            final_remarks TEXT,
+            decision TEXT
+        )
+    """,
 
 # --- Post Joining Uploads ---
 elif menu == "Post-Joining Uploads":
