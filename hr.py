@@ -8,7 +8,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 
 DB = "hr.db"
-ALLOWED_HR_EMAILS = ["hr1@example.com", "hr2@example.com"]
+ALLOWED_HR_EMAILS = ["rsomanchi@tns.org", "hr2@example.com"]
 
 
 def init_db():
