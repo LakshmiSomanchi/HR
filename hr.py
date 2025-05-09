@@ -284,24 +284,20 @@ elif menu == "Downloadable Reports":
         df = pd.read_sql(f"SELECT * FROM {table}", conn)
         st.subheader(table.title())
         st.dataframe(df)
-   for table in ["payroll", "attendance", "exits"]:
-    df = pd.read_sql(f"SELECT * FROM {table}", conn)
-    st.subheader(table.title())
-    st.dataframe(df)
 
-    # Save Excel data to a BytesIO object
-    excel_buffer = io.BytesIO()
-    with pd.ExcelWriter(excel_buffer, engine='openpyxl') as writer:
-        df.to_excel(writer, index=False)
-    excel_buffer.seek(0)
+        # Save Excel data to a BytesIO object
+        excel_buffer = io.BytesIO()
+        with pd.ExcelWriter(excel_buffer, engine='openpyxl') as writer:
+            df.to_excel(writer, index=False)
+        excel_buffer.seek(0)
 
-    # Use the buffer in the download button
-    st.download_button(
-        f"Download {table} (Excel)",
-        data=excel_buffer,
-        file_name=f"{table}.xlsx",
-        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    )
+        # Use the buffer in the download button
+        st.download_button(
+            f"Download {table} (Excel)",
+            data=excel_buffer,
+            file_name=f"{table}.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
 
 # Assets / Travel
 elif menu == "Admin Assets / Travel Requests":
