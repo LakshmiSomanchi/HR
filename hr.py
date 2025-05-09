@@ -4,6 +4,7 @@ import streamlit as st
 import sqlite3
 import datetime
 import os
+import io
 from io import BytesIO
 import pandas as pd
 from reportlab.pdfgen import canvas
@@ -283,7 +284,24 @@ elif menu == "Downloadable Reports":
         df = pd.read_sql(f"SELECT * FROM {table}", conn)
         st.subheader(table.title())
         st.dataframe(df)
-        st.download_button(f"Download {table} (Excel)", df.to_excel(index=False), file_name=f"{table}.xlsx")
+    for table in ["payroll", "attendance", "exits"]:
+    df = pd.read_sql(f"SELECT * FROM {table}", conn)
+    st.subheader(table.title())
+    st.dataframe(df)
+
+    # Save Excel data to a BytesIO object
+    excel_buffer = io.BytesIO()
+    with pd.ExcelWriter(excel_buffer, engine='openpyxl') as writer:
+        df.to_excel(writer, index=False)
+    excel_buffer.seek(0)
+
+    # Use the buffer in the download button
+    st.download_button(
+        f"Download {table} (Excel)",
+        data=excel_buffer,
+        file_name=f"{table}.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
 
 # Assets / Travel
 elif menu == "Admin Assets / Travel Requests":
