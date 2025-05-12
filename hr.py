@@ -107,7 +107,7 @@ elif menu == "📊 Attendance & Leave Tracker":
     # Attendance and Leave Tracker Module
     st.title("📊 Attendance & Leave Tracker")
     st.markdown("Track and manage employee attendance and leave requests.")
-   st.image("attendance_tracker.jpg", caption="Attendance Management", use_container_width=True)
+    st.image("attendance_tracker.jpg", caption="Attendance Management", use_container_width=True)
     employee = st.text_input("Employee Name")
     date = st.date_input("Date")
     present = st.checkbox("Present", value=True)
