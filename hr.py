@@ -51,10 +51,47 @@ def init_db():
 
 init_db()
 
+# Add custom CSS styling
+st.markdown("""
+    <style>
+        body {
+            background-color: #f4f4f9;
+            color: #000000;
+        }
+        .stSidebar {
+            background-color: #2c2c6c;
+        }
+        .stSidebar h1 {
+            color: #04b4ac;
+        }
+        .stButton button {
+            background-color: #04b4ac;
+            color: #ffffff;
+            border-radius: 5px;
+            border: none;
+        }
+        .stButton button:hover {
+            background-color: #dc6262;
+        }
+        .stTextInput > div > label {
+            color: #2c2c6c;
+        }
+        .stSlider > div > label {
+            color: #04b4ac;
+        }
+        .stSelectbox > div {
+            color: #2c2c6c;
+        }
+        .stTitle {
+            color: #000000;
+        }
+    </style>
+""", unsafe_allow_html=True)
 
 # --- Login and Sidebar ---
 if "email" not in st.session_state:
     with st.form("auth"):
+        st.markdown("<h1 style='color: #2c2c6c;'>HR Login</h1>", unsafe_allow_html=True)
         email = st.text_input("Enter HR Email")
         password = st.text_input("Password", type="password")
         if st.form_submit_button("Login"):
@@ -86,7 +123,7 @@ c = conn.cursor()
 
 # --- Candidate Tracker ---
 if menu == "Candidate Tracker":
-    st.title("Add Candidate")
+    st.markdown("<h1 style='color: #04b4ac;'>Candidate Tracker</h1>", unsafe_allow_html=True)
     with st.form("add_candidate"):
         name = st.text_input("Name")
         designation = st.text_input("Designation")
@@ -102,7 +139,7 @@ if menu == "Candidate Tracker":
 
 # --- Interview Assessment ---
 elif menu == "Interview Assessment":
-    st.title("Interview Assessment")
+    st.markdown("<h1 style='color: #04b4ac;'>Interview Assessment</h1>", unsafe_allow_html=True)
     candidates = c.execute("SELECT id, name FROM candidates").fetchall()
     candidate_dict = {n: i for i, n in candidates}
     selected = st.selectbox("Select Candidate", list(candidate_dict))
