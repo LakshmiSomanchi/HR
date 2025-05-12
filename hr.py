@@ -94,12 +94,11 @@ elif menu == "📝 Interview Assessment":
     weaknesses = st.text_area("Weaknesses")
     if st.button("Save Assessment"):
         st.success(f"Interview assessment for '{selected_candidate}' has been saved!")
-
 elif menu == "📂 Post-Joining Uploads":
     # Post-Joining Uploads Module
     st.title("📂 Post-Joining Uploads")
     st.markdown("Upload important documents for new joiners.")
-   st.image("post_joining_uploads.jpg", caption="Document Uploads", use_container_width=True)
+    st.image("post_joining_uploads.jpg", caption="Document Uploads", use_container_width=True)
     uploaded_file = st.file_uploader("Upload Document")
     if uploaded_file:
         st.success("Document uploaded successfully!")
