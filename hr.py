@@ -9,8 +9,10 @@ from io import BytesIO
 import pandas as pd
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
-from streamlit_extras.add_vertical_space import add_vertical_space
+import streamlit as st
+from datetime import datetime
 
+# Set the page configuration (title, icon, layout)
 st.set_page_config(page_title="TechnoServe HR Dashboard", page_icon="🧑‍💼", layout="wide")
 
 # Add the TechnoServe logo to the sidebar and main page
@@ -30,9 +32,6 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# Add vertical space
-add_vertical_space(2)
-
 # Sidebar navigation
 menu = st.sidebar.radio(
     "Select a Module:",
@@ -43,17 +42,6 @@ menu = st.sidebar.radio(
         "Exit Management Tracker", "Downloadable Reports",
         "Admin Assets / Travel Requests", "Approvals Workflow"
     ]
-)
-
-# Additional enhancements for UI customization
-st.sidebar.markdown(
-    """
-    <style>
-        .css-1aumxhk {background-color: #d3f8e2 !important; color: #000;}
-        .css-17eq0hr {font-size: 18px; font-weight: bold;}
-    </style>
-    """,
-    unsafe_allow_html=True,
 )
 
 # Example interactive element for dashboard liveliness
@@ -87,13 +75,6 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
-
-
-st.sidebar.image("technoserve_logo.png", use_column_width=True)
-st.image("technoserve_logo.png", use_column_width=True)
-
-st.title("Welcome to the TechnoServe HR Dashboard")
-
 DB = "hr.db"
 ALLOWED_HR_EMAILS = ["rsomanchi@tns.org", "hr2@example.com"]
 
