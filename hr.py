@@ -39,51 +39,6 @@ TABLES = {
             decision TEXT
         )
     """,
-    "attendance": """
-        CREATE TABLE IF NOT EXISTS attendance (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            employee TEXT,
-            date TEXT,
-            present INTEGER,
-            leave_type TEXT
-        )
-    """,
-    "payroll": """
-        CREATE TABLE IF NOT EXISTS payroll (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            employee TEXT,
-            month TEXT,
-            base_salary REAL,
-            pf REAL,
-            esic REAL,
-            total_salary REAL
-        )
-    """,
-    "exits": """
-        CREATE TABLE IF NOT EXISTS exits (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            employee TEXT,
-            exit_date TEXT,
-            reason TEXT
-        )
-    """,
-    "assets": """
-        CREATE TABLE IF NOT EXISTS assets (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            employee TEXT,
-            asset TEXT,
-            status TEXT
-        )
-    """,
-    "approvals": """
-        CREATE TABLE IF NOT EXISTS approvals (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            request_type TEXT,
-            requested_by TEXT,
-            approved_by TEXT,
-            status TEXT
-        )
-    """,
 }
 
 
@@ -105,21 +60,23 @@ if "email" not in st.session_state:
         if st.form_submit_button("Login"):
             if email in ALLOWED_HR_EMAILS and password == "hrsecure":
                 st.session_state["email"] = email
+                st.experimental_rerun()  # Rerun the app after successful login
             else:
                 st.error("Unauthorized email or password")
                 st.stop()
 
 if st.sidebar.button("Logout"):
     st.session_state.clear()
-    st.experimental_rerun()
+    st.experimental_rerun()  # Rerun the app after logout
+
+# Add TechnoServe logo at the top of the sidebar
+st.sidebar.image("TechnoServe_logo.png", use_column_width=True)
 
 st.sidebar.title("HR Dashboard")
 menu = st.sidebar.radio(
     "Select Module",
     [
-        "Candidate Tracker", "Interview Assessment", "Attendance & Leave Tracker",
-        "Payroll Data Preparation", "Exit Management Tracker", "Downloadable Reports",
-        "Admin Assets / Travel Requests", "Approvals Workflow"
+        "Candidate Tracker", "Interview Assessment"
     ]
 )
 
