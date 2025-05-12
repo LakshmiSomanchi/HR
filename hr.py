@@ -119,7 +119,7 @@ elif menu == "💰 Payroll Data Preparation":
     # Payroll Data Preparation Module
     st.title("💰 Payroll Data Preparation")
     st.markdown("Prepare payroll data accurately.")
-   st.image("payroll_tracker.jpg", caption="Payroll Management", use_container_width=True)
+    st.image("payroll_tracker.jpg", caption="Payroll Management", use_container_width=True)
     employee = st.text_input("Employee Name")
     month = st.text_input("Month")
     base_salary = st.number_input("Base Salary", min_value=0.0, value=0.0)
