@@ -131,13 +131,13 @@ if "email" not in st.session_state:
         if st.form_submit_button("Login"):
             if email in ALLOWED_HR_EMAILS and password == "hrsecure":
                 st.session_state["email"] = email
-                # Use st.success to confirm login, then rerun
+                # Success confirmation before rerun
                 st.success("Login successful! Redirecting...")
                 st.experimental_rerun()
             else:
                 st.error("Unauthorized email or password")
 else:
-    # Sidebar logout button
+    # Adding a logout button in the sidebar
     if st.sidebar.button("Logout"):
         st.session_state.clear()
         st.success("Logged out successfully!")
