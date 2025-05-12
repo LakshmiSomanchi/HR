@@ -137,10 +137,17 @@ if "email" not in st.session_state:
             else:
                 st.error("Unauthorized email or password")
 else:
+if "email" in st.session_state:
     # Adding a logout button in the sidebar
     if st.sidebar.button("Logout"):
-        st.session_state.clear()
+        # Clear session state safely
+        for key in list(st.session_state.keys()):
+            del st.session_state[key]
+
+        # Display a success message before rerunning
         st.success("Logged out successfully!")
+        
+        # Rerun the app after clearing the session
         st.experimental_rerun()
 
 # Add TechnoServe logo at the top of the sidebar
