@@ -116,14 +116,17 @@ if "email" not in st.session_state:
         if st.form_submit_button("Login"):
             if email in ALLOWED_HR_EMAILS and password == "hrsecure":
                 st.session_state["email"] = email
-                st.experimental_rerun()  # Rerun the app after successful login
+                # Use st.success to confirm login, then rerun
+                st.success("Login successful! Redirecting...")
+                st.experimental_rerun()
             else:
                 st.error("Unauthorized email or password")
-                st.stop()
-
-if st.sidebar.button("Logout"):
-    st.session_state.clear()
-    st.experimental_rerun()  # Rerun the app after logout
+else:
+    # Sidebar logout button
+    if st.sidebar.button("Logout"):
+        st.session_state.clear()
+        st.success("Logged out successfully!")
+        st.experimental_rerun()
 
 # Add TechnoServe logo at the top of the sidebar
 st.sidebar.image("TechnoServe_logo.png", use_container_width=True)
@@ -227,6 +230,65 @@ elif menu == "Payroll Data":
             )
             conn.commit()
             st.success("Payroll data saved!")
+            # --- MIS Section ---
+if menu == "MIS":
+    st.markdown("<h1 style='color: #04b4ac;'>MIS - Active Employees</h1>", unsafe_allow_html=True)
+    
+    # Upload CSV
+    st.markdown("### Upload Employee Data")
+    uploaded_file = st.file_uploader("Upload a CSV file with employee data", type=["csv"])
+    if uploaded_file:
+        import pandas as pd
+        try:
+            data = pd.read_csv(uploaded_file)
+            st.write(data.head())  # Display uploaded data
+            
+            # Insert into database
+            for _, row in data.iterrows():
+                c.execute(
+                    """
+                    INSERT INTO employees (status, employee_code, employee_name, designation, job_title, grade, doj, 
+                    confirmation_due_date, project, actual_project) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        row['STATUS'], row['EMPLOYEE CODE'], row['EMPLOYEE NAME'], row['DESIGNATION (Business Title)'],
+                        row['JOB TITLE (System Title)'], row['GRADE'], row['DOJ'], row['CONFIRMATION DUE DATE'],
+                        row['PROJECT'], row['ACTUAL PROJECT']
+                    )
+                )
+            conn.commit()
+            st.success("Employee data uploaded successfully!")
+        except Exception as e:
+            st.error(f"Error processing file: {e}")
+
+    # Display Active Employees
+    st.markdown("### Active Employees")
+    active_employees = c.execute("SELECT * FROM employees WHERE status='Active'").fetchall()
+    if active_employees:
+        import pandas as pd
+        df = pd.DataFrame(active_employees, columns=[
+            "ID", "Status", "Employee Code", "Employee Name", "Designation", "Job Title", "Grade", 
+            "Date of Joining", "Confirmation Due Date", "Project", "Actual Project"
+        ])
+        
+        # Filter by Project
+        project_filter = st.selectbox("Filter by Project", options=["All"] + df["Project"].unique().tolist())
+        if project_filter != "All":
+            df = df[df["Project"] == project_filter]
+        
+        st.dataframe(df)
+
+        # Export Data as CSV
+        csv = df.to_csv(index=False)
+        st.download_button(
+            label="Download CSV",
+            data=csv,
+            file_name="active_employees.csv",
+            mime="text/csv",
+        )
+    else:
+        st.info("No active employees found.")
 
 # --- Exit database connection ---
 conn.close()
