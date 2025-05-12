@@ -59,6 +59,21 @@ TABLES = {
             total_salary REAL
         )
     """,
+    "employees": """
+    CREATE TABLE IF NOT EXISTS employees (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        status TEXT,
+        employee_code TEXT,
+        employee_name TEXT,
+        designation TEXT,
+        job_title TEXT,
+        grade TEXT,
+        doj TEXT,
+        confirmation_due_date TEXT,
+        project TEXT,
+        actual_project TEXT
+    )
+"""
 }
 
 # Initialize the database
@@ -135,7 +150,7 @@ st.sidebar.title("HR Dashboard")
 menu = st.sidebar.radio(
     "Select Module",
     [
-        "Candidate Tracker", "Interview Assessment", "Attendance Tracker", "Payroll Data"
+        "Candidate Tracker", "Interview Assessment", "Attendance Tracker", "Payroll Data", "MIS"
     ]
 )
 
@@ -230,7 +245,7 @@ elif menu == "Payroll Data":
             )
             conn.commit()
             st.success("Payroll data saved!")
-            # --- MIS Section ---
+# --- MIS Section ---
 if menu == "MIS":
     st.markdown("<h1 style='color: #04b4ac;'>MIS - Active Employees</h1>", unsafe_allow_html=True)
     
@@ -262,7 +277,7 @@ if menu == "MIS":
         except Exception as e:
             st.error(f"Error processing file: {e}")
 
-    # Display Active Employees
+# Display Active Employees
     st.markdown("### Active Employees")
     active_employees = c.execute("SELECT * FROM employees WHERE status='Active'").fetchall()
     if active_employees:
@@ -272,7 +287,7 @@ if menu == "MIS":
             "Date of Joining", "Confirmation Due Date", "Project", "Actual Project"
         ])
         
-        # Filter by Project
+ # Filter by Project
         project_filter = st.selectbox("Filter by Project", options=["All"] + df["Project"].unique().tolist())
         if project_filter != "All":
             df = df[df["Project"] == project_filter]
