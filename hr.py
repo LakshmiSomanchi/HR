@@ -158,17 +158,6 @@ menu = st.sidebar.radio(
     ]
 )
 
-# Add TechnoServe logo at the top of the sidebar
-st.sidebar.image("TechnoServe_logo.png", use_container_width=True)
-
-st.sidebar.title("HR Dashboard")
-menu = st.sidebar.radio(
-    "Select Module",
-    [
-        "Candidate Tracker", "Interview Assessment", "Attendance Tracker", "Payroll Data", "MIS"
-    ]
-)
-
 # Reuse connection
 conn = sqlite3.connect(DB)
 c = conn.cursor()
