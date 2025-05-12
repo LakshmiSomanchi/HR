@@ -57,6 +57,7 @@ st.markdown("""
         body {
             background-color: #f4f4f9;
             color: #000000;
+            font-family: Arial, sans-serif;
         }
         .stSidebar {
             background-color: #2c2c6c;
