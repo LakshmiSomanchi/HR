@@ -133,7 +133,8 @@ if "email" not in st.session_state:
             if email in ALLOWED_HR_EMAILS and password == "hrsecure":
                 st.session_state["email"] = email
                 st.success("Login successful! Redirecting...")
-                st.experimental_rerun()
+                st.rerun()
+
             else:
                 st.error("Unauthorized email or password")
 else:
@@ -145,7 +146,7 @@ else:
         for key in list(st.session_state.keys()):
             del st.session_state[key]
         st.success("Logged out successfully!")
-        st.experimental_rerun()
+        st.rerun()
 
     # Sidebar menu for logged-in users
     menu = st.sidebar.radio(
