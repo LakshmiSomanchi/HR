@@ -136,18 +136,23 @@ if "email" not in st.session_state:
                 st.experimental_rerun()
             else:
                 st.error("Unauthorized email or password")
+if "email" not in st.session_state:
+    with st.form("auth"):
+        st.markdown("<h1 style='color: #04b4ac;'>HR Login</h1>", unsafe_allow_html=True)
+        email = st.text_input("Enter HR Email")
+        password = st.text_input("Password", type="password")
+        if st.form_submit_button("Login"):
+            if email in ALLOWED_HR_EMAILS and password == "hrsecure":
+                st.session_state["email"] = email
+                st.success("Login successful! Redirecting...")
+                st.experimental_rerun()
+            else:
+                st.error("Unauthorized email or password")
 else:
-if "email" in st.session_state:
-    # Adding a logout button in the sidebar
     if st.sidebar.button("Logout"):
-        # Clear session state safely
         for key in list(st.session_state.keys()):
             del st.session_state[key]
-
-        # Display a success message before rerunning
         st.success("Logged out successfully!")
-        
-        # Rerun the app after clearing the session
         st.experimental_rerun()
 
 # Add TechnoServe logo at the top of the sidebar
