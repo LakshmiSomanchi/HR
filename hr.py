@@ -126,7 +126,7 @@ if st.sidebar.button("Logout"):
     st.experimental_rerun()  # Rerun the app after logout
 
 # Add TechnoServe logo at the top of the sidebar
-st.sidebar.image("TechnoServe_logo.png", use_column_width=True)
+st.sidebar.image("TechnoServe_logo.png", use_container_width=True)
 
 st.sidebar.title("HR Dashboard")
 menu = st.sidebar.radio(
