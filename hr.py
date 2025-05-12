@@ -9,6 +9,90 @@ from io import BytesIO
 import pandas as pd
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
+from streamlit_extras.add_vertical_space import add_vertical_space
+
+st.set_page_config(page_title="TechnoServe HR Dashboard", page_icon="🧑‍💼", layout="wide")
+
+# Add the TechnoServe logo to the sidebar and main page
+st.sidebar.image("technoserve_logo.png", use_column_width=True)
+st.sidebar.title("TechnoServe HR Dashboard")
+st.sidebar.markdown("---")  # Add a divider for better sidebar UI
+
+# Add a main page header with the logo
+st.image("technoserve_logo.png", use_column_width=True)
+st.title("Welcome to the TechnoServe HR Dashboard")
+st.markdown(
+    """
+    <div style="background-color: #f0f8ff; padding: 10px; border-radius: 10px;">
+        <h3 style="text-align: center; color: #4b8bbe;">Empowering HR Management with Streamlined Solutions</h3>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
+
+# Add vertical space
+add_vertical_space(2)
+
+# Sidebar navigation
+menu = st.sidebar.radio(
+    "Select a Module:",
+    [
+        "Candidate Tracker", "Offer Tracker", "Employee Masterfile",
+        "Interview Assessment", "Post-Joining Uploads",
+        "Attendance & Leave Tracker", "Payroll Data Preparation",
+        "Exit Management Tracker", "Downloadable Reports",
+        "Admin Assets / Travel Requests", "Approvals Workflow"
+    ]
+)
+
+# Additional enhancements for UI customization
+st.sidebar.markdown(
+    """
+    <style>
+        .css-1aumxhk {background-color: #d3f8e2 !important; color: #000;}
+        .css-17eq0hr {font-size: 18px; font-weight: bold;}
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+# Example interactive element for dashboard liveliness
+if menu == "Candidate Tracker":
+    st.title("📋 Candidate Tracker")
+    st.markdown("Track and manage candidates efficiently.")
+    name = st.text_input("Candidate Name")
+    designation = st.text_input("Designation")
+    project = st.text_input("Project")
+    location = st.text_input("Location")
+    if st.button("Save Candidate"):
+        st.success(f"Saved candidate: {name}!")
+
+elif menu == "Offer Tracker":
+    st.title("💼 Offer Tracker")
+    st.markdown("Manage job offers in a seamless way.")
+    candidate = st.text_input("Candidate Name")
+    offer_date = st.date_input("Offer Date")
+    offered_by = st.text_input("Offered By")
+    status = st.selectbox("Status", ["Issued", "Accepted", "Declined"])
+    if st.button("Record Offer"):
+        st.success(f"Offer recorded for {candidate}!")
+
+# Add a footer
+st.markdown("---")
+st.markdown(
+    """
+    <div style="text-align: center; font-size: 14px; color: grey;">
+        Powered by TechnoServe | Enhancing Human Resource Management
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
+
+
+st.sidebar.image("technoserve_logo.png", use_column_width=True)
+st.image("technoserve_logo.png", use_column_width=True)
+
+st.title("Welcome to the TechnoServe HR Dashboard")
 
 DB = "hr.db"
 ALLOWED_HR_EMAILS = ["rsomanchi@tns.org", "hr2@example.com"]
