@@ -78,7 +78,7 @@ st.markdown("""
             color: #2c2c6c;
         }
         .stSlider > div > label {
-            color: #04b4ac;
+            color: #000000;
         }
         .stSelectbox > div {
             color: #2c2c6c;
