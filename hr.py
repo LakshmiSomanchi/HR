@@ -9,7 +9,7 @@ st.set_page_config(
 )
 
 # Sidebar Logo and Navigation
-st.sidebar.image("technoserve_logo.png", use_column_width=True)
+st.sidebar.image("TechnoServe_logo.png", use_column_width=True)
 st.sidebar.title("TechnoServe HR Dashboard")
 st.sidebar.markdown("---")
 
