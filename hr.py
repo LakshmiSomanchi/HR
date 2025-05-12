@@ -137,7 +137,7 @@ if "email" not in st.session_state:
             else:
                 st.error("Unauthorized email or password")
 if "email" not in st.session_state:
-    with st.form("auth"):
+    with st.form(key="login_form"):  # Changed the form key to "login_form" to ensure uniqueness
         st.markdown("<h1 style='color: #04b4ac;'>HR Login</h1>", unsafe_allow_html=True)
         email = st.text_input("Enter HR Email")
         password = st.text_input("Password", type="password")
