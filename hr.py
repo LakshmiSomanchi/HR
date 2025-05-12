@@ -132,26 +132,29 @@ if "email" not in st.session_state:
             if email in ALLOWED_HR_EMAILS and password == "hrsecure":
                 st.session_state["email"] = email
                 st.success("Login successful! Redirecting...")
-                st.rerun()      # 🔁 re-runs the app to enter the logged-in branch
-                st.stop()       # ✅ avoids running the else block in same pass
+                st.rerun()  # ✅ Restart session
+                st.stop()   # ✅ Prevent continuing execution
             else:
                 st.error("Unauthorized email or password")
-    st.stop()  # Prevent rendering rest of app if login form is shown
+    st.stop()
 
-# ✅ Show sidebar & menu only after login
+# ✅ Show sidebar only if logged in
 st.sidebar.title("HR Dashboard")
 st.sidebar.image("TechnoServe_logo.png", use_container_width=True)
 
 if st.sidebar.button("Logout"):
-    for key in list(st.session_state.keys()):
-        del st.session_state[key]
+    st.session_state.clear()
     st.rerun()
 
-# ✅ Safe single call to sidebar.radio
+# ✅ Single use of sidebar menu
 menu = st.sidebar.radio(
     "Select Module",
     [
-        "Candidate Tracker", "Interview Assessment", "Attendance Tracker", "Payroll Data", "MIS"
+        "Candidate Tracker", "Offer Tracker", "Employee Masterfile",
+        "Interview Assessment", "Post-Joining Uploads",
+        "Attendance & Leave Tracker", "Payroll Data Preparation",
+        "Exit Management Tracker", "Downloadable Reports",
+        "Admin Assets / Travel Requests", "Approvals Workflow"
     ]
 )
 
