@@ -124,36 +124,36 @@ st.markdown("""
 
 # --- Login and Sidebar ---
 if "email" not in st.session_state:
-    # Display the login form only if the user is not logged in
-    with st.form(key="login_form"):  # Unique key for the form
+    with st.form(key="login_form"):
         st.markdown("<h1 style='color: #04b4ac;'>HR Login</h1>", unsafe_allow_html=True)
         email = st.text_input("Enter HR Email")
         password = st.text_input("Password", type="password")
         if st.form_submit_button("Login"):
             if email in ALLOWED_HR_EMAILS and password == "hrsecure":
-                # Set session state for logged-in user
                 st.session_state["email"] = email
                 st.success("Login successful! Redirecting...")
-                st.experimental_rerun()  # Rerun to load dashboard
+                st.rerun()  # ✅ Updated
             else:
                 st.error("Unauthorized email or password")
-else:
-    # Display the logout button and dashboard only if the user is logged in
-    st.sidebar.title("HR Dashboard")
-    st.sidebar.image("TechnoServe_logo.png", use_container_width=True)
-    if st.sidebar.button("Logout"):
-        # Clear session state safely
-        for key in list(st.session_state.keys()):
-            del st.session_state[key]
-        st.experimental_rerun()  # Rerun to load login screen
+    st.stop()
 
-    # Sidebar menu for logged-in users
-    menu = st.sidebar.radio(
-        "Select Module",
-        [
-            "Candidate Tracker", "Interview Assessment", "Attendance Tracker", "Payroll Data", "MIS"
-        ]
-    )
+# ✅ If logged in, show sidebar and menu
+st.sidebar.title("HR Dashboard")
+st.sidebar.image("TechnoServe_logo.png", use_container_width=True)
+
+if st.sidebar.button("Logout"):
+    for key in list(st.session_state.keys()):
+        del st.session_state[key]
+    st.rerun()  # ✅ Updated
+
+# ✅ Sidebar menu only shown once, no duplication
+menu = st.sidebar.radio(
+    "Select Module",
+    [
+        "Candidate Tracker", "Interview Assessment", "Attendance Tracker", "Payroll Data", "MIS"
+    ]
+)
+
 # Add TechnoServe logo at the top of the sidebar
 st.sidebar.image("TechnoServe_logo.png", use_container_width=True)
 
