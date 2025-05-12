@@ -61,7 +61,7 @@ elif menu == "💼 Offer Tracker":
     # Offer Tracker Module
     st.title("💼 Offer Tracker")
     st.markdown("Manage job offers seamlessly.")
-   st.image("offer_tracker.jpg", caption="Offer Management", use_container_width=True)
+    st.image("offer_tracker.jpg", caption="Offer Management", use_container_width=True)
     candidate = st.text_input("Candidate Name")
     offer_date = st.date_input("Offer Date")
     offered_by = st.text_input("Offered By")
