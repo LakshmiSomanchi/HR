@@ -9,7 +9,7 @@ st.set_page_config(
 )
 
 # Sidebar Logo and Navigation
-st.sidebar.image("TechnoServe_logo.png", use_column_width=True)
+st.sidebar.image("TechnoServe_logo.png", use_container_width=True)
 st.sidebar.title("TechnoServe HR Dashboard")
 st.sidebar.markdown("---")
 
@@ -31,7 +31,7 @@ menu = st.sidebar.radio(
 )
 
 # Header with logo and welcome text
-st.image("technoserve_logo.png", use_column_width=True)
+st.image("technoserve_logo.png", use_container_width=True)
 st.title("Welcome to the TechnoServe HR Dashboard")
 st.markdown(
     """
@@ -49,7 +49,7 @@ if menu == "📋 Candidate Tracker":
     # Candidate Tracker Module
     st.title("📋 Candidate Tracker")
     st.markdown("Easily track and manage candidates in your recruitment pipeline.")
-    st.image("candidate_tracker.jpg", caption="Candidate Management", use_column_width=True)
+    st.image("candidate_tracker.jpg", caption="Candidate Management", use_container_width=True)
     name = st.text_input("Candidate Name")
     designation = st.text_input("Designation")
     project = st.text_input("Project")
@@ -61,7 +61,7 @@ elif menu == "💼 Offer Tracker":
     # Offer Tracker Module
     st.title("💼 Offer Tracker")
     st.markdown("Manage job offers seamlessly.")
-    st.image("offer_tracker.jpg", caption="Offer Management", use_column_width=True)
+   st.image("offer_tracker.jpg", caption="Offer Management", use_container_width=True)
     candidate = st.text_input("Candidate Name")
     offer_date = st.date_input("Offer Date")
     offered_by = st.text_input("Offered By")
@@ -73,7 +73,7 @@ elif menu == "👨‍💼 Employee Masterfile":
     # Employee Masterfile Module
     st.title("👨‍💼 Employee Masterfile")
     st.markdown("Maintain a comprehensive record of employees.")
-    st.image("employee_masterfile.jpg", caption="Employee Records", use_column_width=True)
+    st.image("employee_masterfile.jpg", caption="Employee Records", use_container_width=True)
     name = st.text_input("Employee Name")
     join_date = st.date_input("Joining Date")
     department = st.text_input("Department")
@@ -85,7 +85,7 @@ elif menu == "📝 Interview Assessment":
     # Interview Assessment Module
     st.title("📝 Interview Assessment")
     st.markdown("Assess candidates based on their interviews.")
-    st.image("interview_assessment.jpg", caption="Interview Evaluation", use_column_width=True)
+    st.image("interview_assessment.jpg", caption="Interview Evaluation", use_container_width=True)
     candidates = ["John Doe", "Jane Smith", "Mike Johnson"]  # Replace with dynamic data
     selected_candidate = st.selectbox("Select Candidate", candidates)
     date = st.date_input("Interview Date", datetime.today())
@@ -99,7 +99,7 @@ elif menu == "📂 Post-Joining Uploads":
     # Post-Joining Uploads Module
     st.title("📂 Post-Joining Uploads")
     st.markdown("Upload important documents for new joiners.")
-    st.image("post_joining_uploads.jpg", caption="Document Uploads", use_column_width=True)
+   st.image("post_joining_uploads.jpg", caption="Document Uploads", use_container_width=True)
     uploaded_file = st.file_uploader("Upload Document")
     if uploaded_file:
         st.success("Document uploaded successfully!")
@@ -108,7 +108,7 @@ elif menu == "📊 Attendance & Leave Tracker":
     # Attendance and Leave Tracker Module
     st.title("📊 Attendance & Leave Tracker")
     st.markdown("Track and manage employee attendance and leave requests.")
-    st.image("attendance_tracker.jpg", caption="Attendance Management", use_column_width=True)
+   st.image("attendance_tracker.jpg", caption="Attendance Management", use_container_width=True)
     employee = st.text_input("Employee Name")
     date = st.date_input("Date")
     present = st.checkbox("Present", value=True)
@@ -120,7 +120,7 @@ elif menu == "💰 Payroll Data Preparation":
     # Payroll Data Preparation Module
     st.title("💰 Payroll Data Preparation")
     st.markdown("Prepare payroll data accurately.")
-    st.image("payroll_tracker.jpg", caption="Payroll Management", use_column_width=True)
+   st.image("payroll_tracker.jpg", caption="Payroll Management", use_container_width=True)
     employee = st.text_input("Employee Name")
     month = st.text_input("Month")
     base_salary = st.number_input("Base Salary", min_value=0.0, value=0.0)
@@ -135,7 +135,7 @@ elif menu == "🚪 Exit Management Tracker":
     # Exit Management Tracker Module
     st.title("🚪 Exit Management Tracker")
     st.markdown("Track employee exits and their reasons.")
-    st.image("exit_tracker.jpg", caption="Exit Management", use_column_width=True)
+    st.image("exit_tracker.jpg", caption="Exit Management", use_container_width=True)
     employee = st.text_input("Employee Name")
     exit_date = st.date_input("Exit Date")
     reason = st.text_area("Reason for Exit")
@@ -146,7 +146,7 @@ elif menu == "📈 Downloadable Reports":
     # Downloadable Reports Module
     st.title("📈 Downloadable Reports")
     st.markdown("Generate and download reports.")
-    st.image("reports.jpg", caption="Reports Dashboard", use_column_width=True)
+    st.image("reports.jpg", caption="Reports Dashboard", use_container_width=True)
     report_type = st.selectbox("Select Report", ["Attendance", "Payroll", "Exit"])
     if st.button("Download Report"):
         st.success(f"'{report_type}' report has been downloaded!")
@@ -155,7 +155,7 @@ elif menu == "🛠️ Admin Assets / Travel Requests":
     # Admin Assets Module
     st.title("🛠️ Admin Assets / Travel Requests")
     st.markdown("Manage assets and travel requests for employees.")
-    st.image("admin_assets.jpg", caption="Asset Management", use_column_width=True)
+    st.image("admin_assets.jpg", caption="Asset Management", use_container_width=True)
     employee = st.text_input("Employee Name")
     asset_description = st.text_area("Asset/Request Description")
     if st.button("Save Request"):
@@ -165,7 +165,7 @@ elif menu == "✅ Approvals Workflow":
     # Approvals Workflow Module
     st.title("✅ Approvals Workflow")
     st.markdown("Manage approval requests.")
-    st.image("approvals.jpg", caption="Approval Management", use_column_width=True)
+    st.image("approvals.jpg", caption="Approval Management", use_container_width=True)
     request_type = st.selectbox("Request Type", ["Leave", "Travel", "Payroll Adjustment"])
     requested_by = st.text_input("Requested By")
     approved_by = st.text_input("Approved By")
