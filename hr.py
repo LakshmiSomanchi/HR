@@ -7,7 +7,7 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 
 DB = "hr.db"
-ALLOWED_HR_EMAILS = ["hr1@example.com", "hr2@example.com"]
+ALLOWED_HR_EMAILS = ["rsomanchi@tns.org", "hr2@example.com"]
 
 # Database table schema
 TABLES = {
@@ -73,12 +73,12 @@ init_db()
 st.markdown("""
     <style>
         body {
-            background-color: #121212;
+            background-color: #c0f6fb;
             color: #ffffff;
             font-family: Arial, sans-serif;
         }
         .stSidebar {
-            background-color: #1c1c1c;
+            background-color: #c0f6fb;
         }
         .stSidebar h1 {
             color: #04b4ac;
