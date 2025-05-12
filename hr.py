@@ -7,7 +7,7 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 
 DB = "hr.db"
-ALLOWED_HR_EMAILS = ["rsomanchi@tns.org", "hr2@example.com"]
+ALLOWED_HR_EMAILS = ["hr1@example.com", "hr2@example.com"]
 
 # Database table schema
 TABLES = {
@@ -39,8 +39,27 @@ TABLES = {
             decision TEXT
         )
     """,
+    "attendance": """
+        CREATE TABLE IF NOT EXISTS attendance (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            employee TEXT,
+            date TEXT,
+            present INTEGER,
+            leave_type TEXT
+        )
+    """,
+    "payroll": """
+        CREATE TABLE IF NOT EXISTS payroll (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            employee TEXT,
+            month TEXT,
+            base_salary REAL,
+            pf REAL,
+            esic REAL,
+            total_salary REAL
+        )
+    """,
 }
-
 
 # Initialize the database
 def init_db():
@@ -48,19 +67,18 @@ def init_db():
         for ddl in TABLES.values():
             conn.execute(ddl)
 
-
 init_db()
 
-# Add custom CSS styling
+# Add custom CSS styling for dark background with high contrast
 st.markdown("""
     <style>
         body {
-            background-color: #f4f4f9;
-            color: #000000;
+            background-color: #121212;
+            color: #ffffff;
             font-family: Arial, sans-serif;
         }
         .stSidebar {
-            background-color: #2c2c6c;
+            background-color: #1c1c1c;
         }
         .stSidebar h1 {
             color: #04b4ac;
@@ -75,16 +93,16 @@ st.markdown("""
             background-color: #dc6262;
         }
         .stTextInput > div > label {
-            color: #2c2c6c;
+            color: #04b4ac;
         }
         .stSlider > div > label {
-            color: #000000;
+            color: #04b4ac;
         }
         .stSelectbox > div {
-            color: #2c2c6c;
+            color: #ffffff;
         }
         .stTitle {
-            color: #000000;
+            color: #04b4ac;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -92,7 +110,7 @@ st.markdown("""
 # --- Login and Sidebar ---
 if "email" not in st.session_state:
     with st.form("auth"):
-        st.markdown("<h1 style='color: #2c2c6c;'>HR Login</h1>", unsafe_allow_html=True)
+        st.markdown("<h1 style='color: #04b4ac;'>HR Login</h1>", unsafe_allow_html=True)
         email = st.text_input("Enter HR Email")
         password = st.text_input("Password", type="password")
         if st.form_submit_button("Login"):
@@ -114,7 +132,7 @@ st.sidebar.title("HR Dashboard")
 menu = st.sidebar.radio(
     "Select Module",
     [
-        "Candidate Tracker", "Interview Assessment"
+        "Candidate Tracker", "Interview Assessment", "Attendance Tracker", "Payroll Data"
     ]
 )
 
@@ -173,30 +191,42 @@ elif menu == "Interview Assessment":
                      final_remarks, decision)
                 )
                 conn.commit()
+                st.success("Interview saved!")
 
-                # Generate PDF
-                buffer = BytesIO()
-                p = canvas.Canvas(buffer, pagesize=letter)
-                y = 750
-                p.drawString(100, y, f"Interview Report: {selected}")
-                y -= 20
-                for label, val in {
-                    "Date": date, "Interviewer": interviewer,
-                    "Strengths": strengths, "Weaknesses": weaknesses,
-                    "Qualification": qualification, "Experience": experience,
-                    "Comm Written": comm_written, "Comm Oral": comm_oral,
-                    "Problem Solving": problem_solving, "Team Capabilities": team_capabilities,
-                    "Comparison": comparison, "Remarks": final_remarks, "Decision": decision
-                }.items():
-                    p.drawString(100, y, f"{label}: {val}")
-                    y -= 20
-                p.showPage()
-                p.save()
-                buffer.seek(0)
-                st.download_button(
-                    "Download Interview PDF", data=buffer.getvalue(),
-                    file_name=f"{selected}_interview.pdf"
-                )
+# --- Attendance Tracker ---
+elif menu == "Attendance Tracker":
+    st.markdown("<h1 style='color: #04b4ac;'>Attendance Tracker</h1>", unsafe_allow_html=True)
+    with st.form("attendance_form"):
+        employee = st.text_input("Employee Name")
+        date = st.date_input("Date", datetime.date.today())
+        present = st.checkbox("Present")
+        leave_type = st.selectbox("Leave Type", ["None", "Sick Leave", "Casual Leave", "Earned Leave"])
+        if st.form_submit_button("Mark Attendance"):
+            c.execute(
+                "INSERT INTO attendance (employee, date, present, leave_type) VALUES (?, ?, ?, ?)",
+                (employee, str(date), int(present), leave_type)
+            )
+            conn.commit()
+            st.success("Attendance marked!")
+
+# --- Payroll Data ---
+elif menu == "Payroll Data":
+    st.markdown("<h1 style='color: #04b4ac;'>Payroll Data</h1>", unsafe_allow_html=True)
+    with st.form("payroll_form"):
+        employee = st.text_input("Employee Name")
+        month = st.text_input("Month (e.g., May 2025)")
+        base_salary = st.number_input("Base Salary", min_value=0.0, step=1000.0)
+        pf = base_salary * 0.12
+        esic = base_salary * 0.0325
+        total_salary = base_salary - (pf + esic)
+        st.write(f"PF: {pf}, ESIC: {esic}, Total Salary: {total_salary}")
+        if st.form_submit_button("Save Payroll"):
+            c.execute(
+                "INSERT INTO payroll (employee, month, base_salary, pf, esic, total_salary) VALUES (?, ?, ?, ?, ?, ?)",
+                (employee, month, base_salary, pf, esic, total_salary)
+            )
+            conn.commit()
+            st.success("Payroll data saved!")
 
 # --- Exit database connection ---
 conn.close()
