@@ -124,20 +124,8 @@ st.markdown("""
 
 # --- Login and Sidebar ---
 if "email" not in st.session_state:
-    with st.form("auth"):
-        st.markdown("<h1 style='color: #04b4ac;'>HR Login</h1>", unsafe_allow_html=True)
-        email = st.text_input("Enter HR Email")
-        password = st.text_input("Password", type="password")
-        if st.form_submit_button("Login"):
-            if email in ALLOWED_HR_EMAILS and password == "hrsecure":
-                st.session_state["email"] = email
-                # Success confirmation before rerun
-                st.success("Login successful! Redirecting...")
-                st.experimental_rerun()
-            else:
-                st.error("Unauthorized email or password")
-if "email" not in st.session_state:
-    with st.form(key="login_form"):  # Changed the form key to "login_form" to ensure uniqueness
+    # Display the login form only if the user is not logged in
+    with st.form(key="login_form"):  # Unique key for the form
         st.markdown("<h1 style='color: #04b4ac;'>HR Login</h1>", unsafe_allow_html=True)
         email = st.text_input("Enter HR Email")
         password = st.text_input("Password", type="password")
@@ -149,12 +137,23 @@ if "email" not in st.session_state:
             else:
                 st.error("Unauthorized email or password")
 else:
+    # Display the logout button and sidebar menu only if the user is logged in
+    st.sidebar.title("HR Dashboard")
+    st.sidebar.image("TechnoServe_logo.png", use_container_width=True)
     if st.sidebar.button("Logout"):
+        # Clear the session state and rerun the app
         for key in list(st.session_state.keys()):
             del st.session_state[key]
         st.success("Logged out successfully!")
         st.experimental_rerun()
 
+    # Sidebar menu for logged-in users
+    menu = st.sidebar.radio(
+        "Select Module",
+        [
+            "Candidate Tracker", "Interview Assessment", "Attendance Tracker", "Payroll Data", "MIS"
+        ]
+    )
 # Add TechnoServe logo at the top of the sidebar
 st.sidebar.image("TechnoServe_logo.png", use_container_width=True)
 
