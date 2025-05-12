@@ -131,8 +131,10 @@ if "email" not in st.session_state:
         password = st.text_input("Password", type="password")
         if st.form_submit_button("Login"):
             if email in ALLOWED_HR_EMAILS and password == "hrsecure":
-                st.session_state["email"] = email
+                st.session_state["email"] = email  # Store email in session state
                 st.success("Login successful! Redirecting...")
+                
+                # Rerun the app to load the dashboard
                 st.experimental_rerun()
             else:
                 st.error("Unauthorized email or password")
@@ -141,9 +143,11 @@ else:
     st.sidebar.title("HR Dashboard")
     st.sidebar.image("TechnoServe_logo.png", use_container_width=True)
     if st.sidebar.button("Logout"):
-        # Clear the session state and rerun the app
+        # Clear the session state safely
         for key in list(st.session_state.keys()):
             del st.session_state[key]
+        
+        # Rerun the app to reload the login screen
         st.experimental_rerun()
 
     # Sidebar menu for logged-in users
