@@ -250,102 +250,64 @@ elif menu == "Payroll Data":
             conn.commit()
             st.success("Payroll data saved!")
 # ✅ Final Complete Streamlit HR System (hr.py)
-# --- MIS Section ---
-elif menu == "MIS":
-    st.markdown("<h1 style='color: #04b4ac;'>MIS - Active Employees</h1>", unsafe_allow_html=True)
 
-    st.markdown("### Upload Employee Data")
-    uploaded_file = st.file_uploader("Upload a CSV file with employee data", type=["csv"])
-    if uploaded_file:
-        import pandas as pd
-        try:
-            data = pd.read_csv(uploaded_file)
-            st.write(data.head())
+# --- Recruitment Snapshot ---
+elif menu == "Recruitment Snapshot":
+    st.markdown("<h1 style='color: #04b4ac;'>Recruitment Snapshot</h1>", unsafe_allow_html=True)
+    st.markdown("### Upload or View Recruitment Snapshot")
 
-            for _, row in data.iterrows():
-                c.execute("""
-                    INSERT INTO employees (status, employee_code, employee_name, designation, job_title, grade, doj,
-                    confirmation_due_date, project, actual_project)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """, (
-                    row['STATUS'], row['EMPLOYEE CODE'], row['EMPLOYEE NAME'], row['DESIGNATION (Business Title)'],
-                    row['JOB TITLE (System Title)'], row['GRADE'], row['DOJ'], row['CONFIRMATION DUE DATE'],
-                    row['PROJECT'], row['ACTUAL PROJECT']
-                ))
-            conn.commit()
-            st.success("Employee data uploaded successfully!")
-        except Exception as e:
-            st.error(f"Error processing file: {e}")
+    upload_file = st.file_uploader("Upload Recruitment Snapshot Excel", type=["xlsx"])
+    if upload_file:
+        with open("Recruitment_Snapshot.xlsx", "wb") as f:
+            f.write(upload_file.read())
+        st.success("Uploaded successfully.")
 
-    st.markdown("### Active Employees")
-    active_employees = c.execute("SELECT * FROM employees WHERE status='Active'").fetchall()
-    if active_employees:
-        import pandas as pd
-        df = pd.DataFrame(active_employees, columns=[
-            "ID", "Status", "Employee Code", "Employee Name", "Designation", "Job Title", "Grade",
-            "Date of Joining", "Confirmation Due Date", "Project", "Actual Project"
-        ])
+    if os.path.exists("Recruitment_Snapshot.xlsx"):
+        df = pd.read_excel("Recruitment_Snapshot.xlsx", sheet_name="Recruitment Snapshot")
 
-        project_filter = st.selectbox("Filter by Project", options=["All"] + df["Project"].unique().tolist())
-        if project_filter != "All":
-            df = df[df["Project"] == project_filter]
+        with st.expander("🔍 Filters"):
+            recruiter = st.selectbox("Recruiter", ["All"] + sorted(df["Recruiter"].dropna().unique().tolist()))
+            project = st.selectbox("Project", ["All"] + sorted(df["Project"].dropna().unique().tolist()))
+            if recruiter != "All":
+                df = df[df["Recruiter"] == recruiter]
+            if project != "All":
+                df = df[df["Project"] == project]
 
         st.dataframe(df)
 
-        csv = df.to_csv(index=False)
-        st.download_button(
-            label="Download CSV",
-            data=csv,
-            file_name="active_employees.csv",
-            mime="text/csv",
-        )
+        # Key Metrics
+        col1, col2, col3 = st.columns(3)
+        col1.metric("Offers Made", int(df["Total Offers Made"].sum()))
+        col2.metric("Accepted", int(df["Offer Accepted"].sum()))
+        col3.metric("Open Positions", int(df["Positions Open"].sum()))
+
+        # Download
+        csv = df.to_csv(index=False).encode('utf-8')
+        st.download_button("📥 Download CSV", data=csv, file_name="recruitment_snapshot.csv", mime="text/csv")
     else:
-        st.info("No active employees found.")
+        st.info("Please upload the 'Recruitment Snapshot' Excel file to begin.")
 
-# --- Offer Tracker ---
-elif menu == "Offer Tracker":
-    st.markdown("<h1 style='color: #04b4ac;'>Offer Tracker</h1>", unsafe_allow_html=True)
-    st.info("Feature under development.")
+# --- Monthly MIS ---
+elif menu == "Monthly MIS":
+    st.markdown("<h1 style='color: #04b4ac;'>Monthly Recruitment Progress</h1>", unsafe_allow_html=True)
 
-# --- Employee Masterfile ---
-elif menu == "Employee Masterfile":
-    st.markdown("<h1 style='color: #04b4ac;'>Employee Masterfile</h1>", unsafe_allow_html=True)
-    st.info("Feature under development.")
+    upload_mis = st.file_uploader("Upload Monthly MIS Excel", type=["xlsx"], key="mis")
+    if upload_mis:
+        with open("Monthly_MIS.xlsx", "wb") as f:
+            f.write(upload_mis.read())
+        st.success("Uploaded successfully.")
 
-# --- Post-Joining Uploads ---
-elif menu == "Post-Joining Uploads":
-    st.markdown("<h1 style='color: #04b4ac;'>Post-Joining Uploads</h1>", unsafe_allow_html=True)
-    st.info("Feature under development.")
+    if os.path.exists("Monthly_MIS.xlsx"):
+        df = pd.read_excel("Monthly_MIS.xlsx", sheet_name="Monthly MIS")
+        df["Month"] = pd.to_datetime(df["Month"])
 
-# --- Attendance & Leave Tracker ---
-elif menu == "Attendance & Leave Tracker":
-    st.markdown("<h1 style='color: #04b4ac;'>Attendance & Leave Tracker</h1>", unsafe_allow_html=True)
-    st.info("Feature under development.")
+        chart_data = df[["Month", "Total Positions", "Open Positions", "Tot No of Positions Closed"]].dropna()
+        chart_data.set_index("Month", inplace=True)
 
-# --- Payroll Data Preparation ---
-elif menu == "Payroll Data Preparation":
-    st.markdown("<h1 style='color: #04b4ac;'>Payroll Data Preparation</h1>", unsafe_allow_html=True)
-    st.info("Feature under development.")
+        st.line_chart(chart_data)
+        st.dataframe(df)
 
-# --- Exit Management Tracker ---
-elif menu == "Exit Management Tracker":
-    st.markdown("<h1 style='color: #04b4ac;'>Exit Management Tracker</h1>", unsafe_allow_html=True)
-    st.info("Feature under development.")
-
-# --- Downloadable Reports ---
-elif menu == "Downloadable Reports":
-    st.markdown("<h1 style='color: #04b4ac;'>Downloadable Reports</h1>", unsafe_allow_html=True)
-    st.info("Feature under development.")
-
-# --- Admin Assets / Travel Requests ---
-elif menu == "Admin Assets / Travel Requests":
-    st.markdown("<h1 style='color: #04b4ac;'>Admin Assets / Travel Requests</h1>", unsafe_allow_html=True)
-    st.info("Feature under development.")
-
-# --- Approvals Workflow ---
-elif menu == "Approvals Workflow":
-    st.markdown("<h1 style='color: #04b4ac;'>Approvals Workflow</h1>", unsafe_allow_html=True)
-    st.info("Feature under development.")
-
-# --- Exit DB ---
-conn.close()
+        csv = df.to_csv(index=False).encode('utf-8')
+        st.download_button("📥 Download Monthly MIS", data=csv, file_name="monthly_mis.csv", mime="text/csv")
+    else:
+        st.info("Please upload the 'Monthly MIS' Excel file to view progress.")
