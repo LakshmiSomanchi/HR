@@ -3,9 +3,10 @@ import sqlite3
 import datetime
 import os
 
+# Database file name
 DB = "hr.db"
 
-# Database table schema
+# Define the database table schema
 TABLES = {
     "candidates": """
         CREATE TABLE IF NOT EXISTS candidates (
@@ -88,9 +89,10 @@ def init_db():
         for ddl in TABLES.values():
             conn.execute(ddl)
 
+# Run the database initialization
 init_db()
 
-# Sidebar menu
+# Sidebar menu options
 menu = st.sidebar.radio(
     "Select Module",
     [
@@ -102,7 +104,7 @@ menu = st.sidebar.radio(
     ]
 )
 
-# Reuse connection
+# Reuse SQLite connection
 conn = sqlite3.connect(DB)
 c = conn.cursor()
 
