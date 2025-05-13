@@ -145,9 +145,9 @@ if "email" not in st.session_state:
         email = st.text_input("Enter HR Email")
         password = st.text_input("Password", type="password")
         if email in ALLOWED_HR_EMAILS and password == "hrsecure":
-    st.session_state["email"] = email
-    st.success("Login successful! Redirecting...")
-    st.rerun()
+           st.session_state["email"] = email
+           st.success("Login successful! Redirecting...")
+           st.rerun()
 else:
     st.error("Unauthorized email or password")
     st.stop()
