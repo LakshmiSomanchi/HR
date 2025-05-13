@@ -252,6 +252,41 @@ elif menu == "Payroll Data":
 # --- MIS Section ---
 if menu == "MIS":
     st.markdown("<h1 style='color: #04b4ac;'>MIS - Active Employees</h1>", unsafe_allow_html=True)
+    elif menu == "Offer Tracker":
+    st.markdown("<h1 style='color: #04b4ac;'>Offer Tracker</h1>", unsafe_allow_html=True)
+    st.info("Feature under development.")
+
+elif menu == "Employee Masterfile":
+    st.markdown("<h1 style='color: #04b4ac;'>Employee Masterfile</h1>", unsafe_allow_html=True)
+    st.info("Feature under development.")
+
+elif menu == "Post-Joining Uploads":
+    st.markdown("<h1 style='color: #04b4ac;'>Post-Joining Uploads</h1>", unsafe_allow_html=True)
+    st.info("Feature under development.")
+
+elif menu == "Attendance & Leave Tracker":
+    st.markdown("<h1 style='color: #04b4ac;'>Attendance & Leave Tracker</h1>", unsafe_allow_html=True)
+    st.info("Feature under development.")
+
+elif menu == "Payroll Data Preparation":
+    st.markdown("<h1 style='color: #04b4ac;'>Payroll Data Preparation</h1>", unsafe_allow_html=True)
+    st.info("Feature under development.")
+
+elif menu == "Exit Management Tracker":
+    st.markdown("<h1 style='color: #04b4ac;'>Exit Management Tracker</h1>", unsafe_allow_html=True)
+    st.info("Feature under development.")
+
+elif menu == "Downloadable Reports":
+    st.markdown("<h1 style='color: #04b4ac;'>Downloadable Reports</h1>", unsafe_allow_html=True)
+    st.info("Feature under development.")
+
+elif menu == "Admin Assets / Travel Requests":
+    st.markdown("<h1 style='color: #04b4ac;'>Admin Assets / Travel Requests</h1>", unsafe_allow_html=True)
+    st.info("Feature under development.")
+
+elif menu == "Approvals Workflow":
+    st.markdown("<h1 style='color: #04b4ac;'>Approvals Workflow</h1>", unsafe_allow_html=True)
+    st.info("Feature under development.")
     
     # Upload CSV
     st.markdown("### Upload Employee Data")
