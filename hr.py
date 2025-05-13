@@ -166,7 +166,9 @@ menu = st.sidebar.radio(
     [
         "Candidate Tracker", "Offer Tracker", "Employee Masterfile",
         "Interview Assessment", "Payroll Data",
-        "Admin Assets / Travel Requests", "Approvals Workflow"
+        "Admin Assets / Travel Requests", "Approvals Workflow",
+        "Attendance Tracker", "Post-Joining Documents",
+        "Exit Management", "Downloadable Reports"
     ]
 )
 
@@ -226,6 +228,42 @@ elif menu == "Employee Masterfile":
             )
             conn.commit()
             st.success("Employee added successfully!")
+
+elif menu == "Attendance Tracker":
+    st.markdown("<h1 style='color: #04b4ac;'>Attendance Tracker</h1>", unsafe_allow_html=True)
+    with st.form("attendance_form"):
+        employee = st.text_input("Employee Name")
+        date = st.date_input("Date", datetime.date.today())
+        present = st.checkbox("Present")
+        leave_type = st.selectbox("Leave Type", ["None", "Sick Leave", "Casual Leave", "Earned Leave"])
+        if st.form_submit_button("Mark Attendance"):
+            c.execute(
+                "INSERT INTO attendance (employee, date, present, leave_type) VALUES (?, ?, ?, ?)",
+                (employee, str(date), int(present), leave_type)
+            )
+            conn.commit()
+            st.success("Attendance marked successfully!")
+
+elif menu == "Approvals Workflow":
+    st.markdown("<h1 style='color: #04b4ac;'>Approvals Workflow</h1>", unsafe_allow_html=True)
+    approvals = c.execute("SELECT * FROM approvals").fetchall()
+    st.write("Pending Approvals:")
+    for approval in approvals:
+        st.write(f"Approval ID: {approval[0]}, Employee: {approval[1]}, Approval Type: {approval[2]}, Status: {approval[3]}")
+
+elif menu == "Downloadable Reports":
+    st.markdown("<h1 style='color: #04b4ac;'>Downloadable Reports</h1>", unsafe_allow_html=True)
+    st.write("### Generate and Download Reports")
+    employees = c.execute("SELECT * FROM employees").fetchall()
+    if employees:
+        df = pd.DataFrame(employees, columns=[
+            "ID", "Employee Code", "Name", "Designation", "Job Title",
+            "Grade", "Date of Joining", "Confirmation Due Date", "Project", "Actual Project"
+        ])
+        csv = df.to_csv(index=False).encode('utf-8')
+        st.download_button("Download Employee Report", data=csv, file_name="employee_report.csv", mime="text/csv")
+    else:
+        st.info("No data available for download.")
 
 # --- Payroll Data ---
 elif menu == "Payroll Data":
