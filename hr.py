@@ -8,7 +8,7 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 
 DB = "hr.db"
-ALLOWED_HR_EMAILS = ["rsomanchi@tns.org", "sshankar@tns.org","tkhedekar@tns.org","hetalb@tns.org"]
+ALLOWED_HR_EMAILS = ["rsomanchi@tns.org","sshankar@tns.org","tkhedekar@tns.org","hetalb@tns.org"]
 
 # Database table schema
 TABLES = {
