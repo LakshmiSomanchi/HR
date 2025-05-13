@@ -21,49 +21,9 @@ TABLES = {
             location TEXT
         )
     """,
-    "interviews": """
-        CREATE TABLE IF NOT EXISTS interviews (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            candidate_id INTEGER,
-            date TEXT,
-            interviewer TEXT,
-            strengths TEXT,
-            weaknesses TEXT,
-            qualification INTEGER,
-            experience INTEGER,
-            comm_written INTEGER,
-            comm_oral INTEGER,
-            problem_solving INTEGER,
-            team_capabilities INTEGER,
-            comparison TEXT,
-            final_remarks TEXT,
-            decision TEXT
-        )
-    """,
-    "attendance": """
-        CREATE TABLE IF NOT EXISTS attendance (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            employee TEXT,
-            date TEXT,
-            present INTEGER,
-            leave_type TEXT
-        )
-    """,
-    "payroll": """
-        CREATE TABLE IF NOT EXISTS payroll (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            employee TEXT,
-            month TEXT,
-            base_salary REAL,
-            pf REAL,
-            esic REAL,
-            total_salary REAL
-        )
-    """,
     "employees": """
         CREATE TABLE IF NOT EXISTS employees (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            status TEXT,
             employee_code TEXT,
             employee_name TEXT,
             designation TEXT,
@@ -75,22 +35,32 @@ TABLES = {
             actual_project TEXT
         )
     """,
-    "approvals": """
-        CREATE TABLE IF NOT EXISTS approvals (
+    "attendance": """
+        CREATE TABLE IF NOT EXISTS attendance (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             employee TEXT,
-            approval_type TEXT,
+            date TEXT,
+            present INTEGER,
+            leave_type TEXT
+        )
+    """,
+    "post_joining_documents": """
+        CREATE TABLE IF NOT EXISTS post_joining_documents (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            employee TEXT,
+            document_name TEXT,
+            uploaded_date TEXT
+        )
+    """,
+    "exit_management": """
+        CREATE TABLE IF NOT EXISTS exit_management (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            employee TEXT,
+            exit_date TEXT,
+            reason TEXT,
             status TEXT
         )
     """,
-    "admin_requests": """
-        CREATE TABLE IF NOT EXISTS admin_requests (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            employee TEXT,
-            request_type TEXT,
-            details TEXT
-        )
-    """
 }
 
 # Initialize the database
@@ -101,7 +71,7 @@ def init_db():
 
 init_db()
 
-# Add custom CSS styling for better UI
+# Add custom CSS for styling
 st.markdown("""
     <style>
         body {
@@ -139,7 +109,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- Login and Sidebar ---
+# --- Sidebar and Authentication ---
 if "email" not in st.session_state:
     with st.form(key="login_form"):
         st.markdown("<h1 style='color: #04b4ac;'>HR Login</h1>", unsafe_allow_html=True)
@@ -155,7 +125,6 @@ if "email" not in st.session_state:
                 st.error("Unauthorized email or password")
     st.stop()
 
-# Sidebar
 st.sidebar.title("HR Dashboard")
 st.sidebar.image("TechnoServe_logo.png", use_container_width=True)
 
@@ -166,12 +135,8 @@ if st.sidebar.button("Logout"):
 menu = st.sidebar.radio(
     "Select Module",
     [
-        "Candidate Tracker", "Offer Tracker", "Employee Masterfile",
-        "Interview Assessment", "Post-Joining Uploads",
-        "Attendance & Leave Tracker", "Payroll Data Preparation",
-        "Exit Management Tracker", "Downloadable Reports",
-        "Admin Assets / Travel Requests", "Approvals Workflow",
-        "Recruitment Snapshot", "Monthly MIS"
+        "Master Tracker", "Employee Masterfiles", "Attendance Tracker",
+        "Post-Joining Documents", "Exit Management", "Downloadable Reports"
     ]
 )
 
@@ -179,6 +144,103 @@ menu = st.sidebar.radio(
 conn = sqlite3.connect(DB)
 c = conn.cursor()
 
+# --- Master Tracker ---
+if menu == "Master Tracker":
+    st.markdown("<h1 style='color: #04b4ac;'>Master Tracker</h1>", unsafe_allow_html=True)
+    employees = c.execute("SELECT * FROM employees").fetchall()
+    st.write("### Employee Master Data")
+    if employees:
+        df = pd.DataFrame(employees, columns=[
+            "ID", "Employee Code", "Name", "Designation", "Job Title",
+            "Grade", "Date of Joining", "Confirmation Due Date", "Project", "Actual Project"
+        ])
+        st.dataframe(df)
+    else:
+        st.info("No employee records found.")
+
+# --- Employee Masterfiles ---
+elif menu == "Employee Masterfiles":
+    st.markdown("<h1 style='color: #04b4ac;'>Employee Masterfiles</h1>", unsafe_allow_html=True)
+    with st.form("employee_form"):
+        employee_code = st.text_input("Employee Code")
+        name = st.text_input("Employee Name")
+        designation = st.text_input("Designation")
+        job_title = st.text_input("Job Title")
+        grade = st.text_input("Grade")
+        doj = st.date_input("Date of Joining")
+        confirmation_due_date = st.date_input("Confirmation Due Date")
+        project = st.text_input("Project")
+        actual_project = st.text_input("Actual Project")
+        if st.form_submit_button("Add Employee"):
+            c.execute(
+                "INSERT INTO employees (employee_code, employee_name, designation, job_title, grade, doj, confirmation_due_date, project, actual_project) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                (employee_code, name, designation, job_title, grade, str(doj), str(confirmation_due_date), project, actual_project)
+            )
+            conn.commit()
+            st.success("Employee added successfully!")
+
+# --- Attendance Tracker ---
+elif menu == "Attendance Tracker":
+    st.markdown("<h1 style='color: #04b4ac;'>Attendance Tracker</h1>", unsafe_allow_html=True)
+    with st.form("attendance_form"):
+        employee = st.text_input("Employee Name")
+        date = st.date_input("Date", datetime.date.today())
+        present = st.checkbox("Present")
+        leave_type = st.selectbox("Leave Type", ["None", "Sick Leave", "Casual Leave", "Earned Leave"])
+        if st.form_submit_button("Mark Attendance"):
+            c.execute(
+                "INSERT INTO attendance (employee, date, present, leave_type) VALUES (?, ?, ?, ?)",
+                (employee, str(date), int(present), leave_type)
+            )
+            conn.commit()
+            st.success("Attendance marked successfully!")
+
+# --- Post-Joining Documents ---
+elif menu == "Post-Joining Documents":
+    st.markdown("<h1 style='color: #04b4ac;'>Post-Joining Documents</h1>", unsafe_allow_html=True)
+    uploaded_file = st.file_uploader("Upload Employee Documents", type=["pdf", "docx", "xlsx"])
+    if uploaded_file:
+        with st.form("post_joining_form"):
+            employee = st.text_input("Employee Name")
+            document_name = st.text_input("Document Name")
+            if st.form_submit_button("Save Document"):
+                c.execute(
+                    "INSERT INTO post_joining_documents (employee, document_name, uploaded_date) VALUES (?, ?, ?)",
+                    (employee, document_name, str(datetime.date.today()))
+                )
+                conn.commit()
+                st.success(f"Document '{document_name}' for {employee} saved successfully!")
+
+# --- Exit Management ---
+elif menu == "Exit Management":
+    st.markdown("<h1 style='color: #04b4ac;'>Exit Management</h1>", unsafe_allow_html=True)
+    with st.form("exit_form"):
+        employee = st.text_input("Employee Name")
+        exit_date = st.date_input("Exit Date")
+        reason = st.text_area("Reason for Exit")
+        status = st.selectbox("Exit Status", ["Pending", "Completed"])
+        if st.form_submit_button("Save Exit Details"):
+            c.execute(
+                "INSERT INTO exit_management (employee, exit_date, reason, status) VALUES (?, ?, ?, ?)",
+                (employee, str(exit_date), reason, status)
+            )
+            conn.commit()
+            st.success("Exit details saved successfully!")
+
+# --- Downloadable Reports ---
+elif menu == "Downloadable Reports":
+    st.markdown("<h1 style='color: #04b4ac;'>Downloadable Reports</h1>", unsafe_allow_html=True)
+    st.write("### Generate and Download Reports")
+    employees = c.execute("SELECT * FROM employees").fetchall()
+    if employees:
+        df = pd.DataFrame(employees, columns=[
+            "ID", "Employee Code", "Name", "Designation", "Job Title",
+            "Grade", "Date of Joining", "Confirmation Due Date", "Project", "Actual Project"
+        ])
+        csv = df.to_csv(index=False).encode('utf-8')
+        st.download_button("Download Employee Report", data=csv, file_name="employee_report.csv", mime="text/csv")
+    else:
+        st.info("No data available for download.")
 # --- Candidate Tracker ---
 if menu == "Candidate Tracker":
     st.markdown("<h1 style='color: #04b4ac;'>Candidate Tracker</h1>", unsafe_allow_html=True)
