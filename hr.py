@@ -249,91 +249,49 @@ elif menu == "Payroll Data":
             )
             conn.commit()
             st.success("Payroll data saved!")
+# ✅ Final Complete Streamlit HR System (hr.py)
 # --- MIS Section ---
-if menu == "MIS":
+elif menu == "MIS":
     st.markdown("<h1 style='color: #04b4ac;'>MIS - Active Employees</h1>", unsafe_allow_html=True)
-    elif menu == "Offer Tracker":
-    st.markdown("<h1 style='color: #04b4ac;'>Offer Tracker</h1>", unsafe_allow_html=True)
-    st.info("Feature under development.")
 
-elif menu == "Employee Masterfile":
-    st.markdown("<h1 style='color: #04b4ac;'>Employee Masterfile</h1>", unsafe_allow_html=True)
-    st.info("Feature under development.")
-
-elif menu == "Post-Joining Uploads":
-    st.markdown("<h1 style='color: #04b4ac;'>Post-Joining Uploads</h1>", unsafe_allow_html=True)
-    st.info("Feature under development.")
-
-elif menu == "Attendance & Leave Tracker":
-    st.markdown("<h1 style='color: #04b4ac;'>Attendance & Leave Tracker</h1>", unsafe_allow_html=True)
-    st.info("Feature under development.")
-
-elif menu == "Payroll Data Preparation":
-    st.markdown("<h1 style='color: #04b4ac;'>Payroll Data Preparation</h1>", unsafe_allow_html=True)
-    st.info("Feature under development.")
-
-elif menu == "Exit Management Tracker":
-    st.markdown("<h1 style='color: #04b4ac;'>Exit Management Tracker</h1>", unsafe_allow_html=True)
-    st.info("Feature under development.")
-
-elif menu == "Downloadable Reports":
-    st.markdown("<h1 style='color: #04b4ac;'>Downloadable Reports</h1>", unsafe_allow_html=True)
-    st.info("Feature under development.")
-
-elif menu == "Admin Assets / Travel Requests":
-    st.markdown("<h1 style='color: #04b4ac;'>Admin Assets / Travel Requests</h1>", unsafe_allow_html=True)
-    st.info("Feature under development.")
-
-elif menu == "Approvals Workflow":
-    st.markdown("<h1 style='color: #04b4ac;'>Approvals Workflow</h1>", unsafe_allow_html=True)
-    st.info("Feature under development.")
-    
-    # Upload CSV
     st.markdown("### Upload Employee Data")
     uploaded_file = st.file_uploader("Upload a CSV file with employee data", type=["csv"])
     if uploaded_file:
         import pandas as pd
         try:
             data = pd.read_csv(uploaded_file)
-            st.write(data.head())  # Display uploaded data
-            
-            # Insert into database
+            st.write(data.head())
+
             for _, row in data.iterrows():
-                c.execute(
-                    """
-                    INSERT INTO employees (status, employee_code, employee_name, designation, job_title, grade, doj, 
-                    confirmation_due_date, project, actual_project) 
+                c.execute("""
+                    INSERT INTO employees (status, employee_code, employee_name, designation, job_title, grade, doj,
+                    confirmation_due_date, project, actual_project)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                    """,
-                    (
-                        row['STATUS'], row['EMPLOYEE CODE'], row['EMPLOYEE NAME'], row['DESIGNATION (Business Title)'],
-                        row['JOB TITLE (System Title)'], row['GRADE'], row['DOJ'], row['CONFIRMATION DUE DATE'],
-                        row['PROJECT'], row['ACTUAL PROJECT']
-                    )
-                )
+                """, (
+                    row['STATUS'], row['EMPLOYEE CODE'], row['EMPLOYEE NAME'], row['DESIGNATION (Business Title)'],
+                    row['JOB TITLE (System Title)'], row['GRADE'], row['DOJ'], row['CONFIRMATION DUE DATE'],
+                    row['PROJECT'], row['ACTUAL PROJECT']
+                ))
             conn.commit()
             st.success("Employee data uploaded successfully!")
         except Exception as e:
             st.error(f"Error processing file: {e}")
 
-# Display Active Employees
     st.markdown("### Active Employees")
     active_employees = c.execute("SELECT * FROM employees WHERE status='Active'").fetchall()
     if active_employees:
         import pandas as pd
         df = pd.DataFrame(active_employees, columns=[
-            "ID", "Status", "Employee Code", "Employee Name", "Designation", "Job Title", "Grade", 
+            "ID", "Status", "Employee Code", "Employee Name", "Designation", "Job Title", "Grade",
             "Date of Joining", "Confirmation Due Date", "Project", "Actual Project"
         ])
-        
- # Filter by Project
+
         project_filter = st.selectbox("Filter by Project", options=["All"] + df["Project"].unique().tolist())
         if project_filter != "All":
             df = df[df["Project"] == project_filter]
-        
+
         st.dataframe(df)
 
-        # Export Data as CSV
         csv = df.to_csv(index=False)
         st.download_button(
             label="Download CSV",
@@ -344,5 +302,50 @@ elif menu == "Approvals Workflow":
     else:
         st.info("No active employees found.")
 
-# --- Exit database connection ---
+# --- Offer Tracker ---
+elif menu == "Offer Tracker":
+    st.markdown("<h1 style='color: #04b4ac;'>Offer Tracker</h1>", unsafe_allow_html=True)
+    st.info("Feature under development.")
+
+# --- Employee Masterfile ---
+elif menu == "Employee Masterfile":
+    st.markdown("<h1 style='color: #04b4ac;'>Employee Masterfile</h1>", unsafe_allow_html=True)
+    st.info("Feature under development.")
+
+# --- Post-Joining Uploads ---
+elif menu == "Post-Joining Uploads":
+    st.markdown("<h1 style='color: #04b4ac;'>Post-Joining Uploads</h1>", unsafe_allow_html=True)
+    st.info("Feature under development.")
+
+# --- Attendance & Leave Tracker ---
+elif menu == "Attendance & Leave Tracker":
+    st.markdown("<h1 style='color: #04b4ac;'>Attendance & Leave Tracker</h1>", unsafe_allow_html=True)
+    st.info("Feature under development.")
+
+# --- Payroll Data Preparation ---
+elif menu == "Payroll Data Preparation":
+    st.markdown("<h1 style='color: #04b4ac;'>Payroll Data Preparation</h1>", unsafe_allow_html=True)
+    st.info("Feature under development.")
+
+# --- Exit Management Tracker ---
+elif menu == "Exit Management Tracker":
+    st.markdown("<h1 style='color: #04b4ac;'>Exit Management Tracker</h1>", unsafe_allow_html=True)
+    st.info("Feature under development.")
+
+# --- Downloadable Reports ---
+elif menu == "Downloadable Reports":
+    st.markdown("<h1 style='color: #04b4ac;'>Downloadable Reports</h1>", unsafe_allow_html=True)
+    st.info("Feature under development.")
+
+# --- Admin Assets / Travel Requests ---
+elif menu == "Admin Assets / Travel Requests":
+    st.markdown("<h1 style='color: #04b4ac;'>Admin Assets / Travel Requests</h1>", unsafe_allow_html=True)
+    st.info("Feature under development.")
+
+# --- Approvals Workflow ---
+elif menu == "Approvals Workflow":
+    st.markdown("<h1 style='color: #04b4ac;'>Approvals Workflow</h1>", unsafe_allow_html=True)
+    st.info("Feature under development.")
+
+# --- Exit DB ---
 conn.close()
