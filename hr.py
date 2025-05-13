@@ -117,7 +117,7 @@ st.markdown("""
             color: #ffffff;
         }
         .stTitle {
-            color: #04b4ac;
+            color: #211C4E;
         }
     </style>
 """, unsafe_allow_html=True)
