@@ -144,13 +144,16 @@ if "email" not in st.session_state:
         st.markdown("<h1 style='color: #04b4ac;'>HR Login</h1>", unsafe_allow_html=True)
         email = st.text_input("Enter HR Email")
         password = st.text_input("Password", type="password")
+        submit_button = st.form_submit_button("Login")  # This adds the submit button
+    
+     if submit_button:  # Check if the submit button was pressed
         if email in ALLOWED_HR_EMAILS and password == "hrsecure":
-           st.session_state["email"] = email
-           st.success("Login successful! Redirecting...")
-           st.rerun()
-else:
-    st.error("Unauthorized email or password")
-    st.stop()
+            st.session_state["email"] = email
+            st.success("Login successful! Redirecting...")
+            st.rerun()
+        else:
+            st.error("Unauthorized email or password")
+            st.stop()
 
 st.sidebar.title("HR Dashboard")
 st.sidebar.image("TechnoServe_logo.png", use_container_width=True)
