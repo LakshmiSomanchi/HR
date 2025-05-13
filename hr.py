@@ -74,6 +74,22 @@ TABLES = {
             project TEXT,
             actual_project TEXT
         )
+    """,
+    "approvals": """
+        CREATE TABLE IF NOT EXISTS approvals (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            employee TEXT,
+            approval_type TEXT,
+            status TEXT
+        )
+    """,
+    "admin_requests": """
+        CREATE TABLE IF NOT EXISTS admin_requests (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            employee TEXT,
+            request_type TEXT,
+            details TEXT
+        )
     """
 }
 
@@ -85,7 +101,7 @@ def init_db():
 
 init_db()
 
-# Add custom CSS styling for dark background with high contrast
+# Add custom CSS styling for better UI
 st.markdown("""
     <style>
         body {
@@ -133,13 +149,13 @@ if "email" not in st.session_state:
             if email in ALLOWED_HR_EMAILS and password == "hrsecure":
                 st.session_state["email"] = email
                 st.success("Login successful! Redirecting...")
-                st.rerun()  # ✅ Restart session
-                st.stop()   # ✅ Prevent continuing execution
+                st.rerun()
+                st.stop()
             else:
                 st.error("Unauthorized email or password")
     st.stop()
 
-# ✅ Show sidebar only if logged in
+# Sidebar
 st.sidebar.title("HR Dashboard")
 st.sidebar.image("TechnoServe_logo.png", use_container_width=True)
 
@@ -147,7 +163,6 @@ if st.sidebar.button("Logout"):
     st.session_state.clear()
     st.rerun()
 
-# ✅ Single use of sidebar menu
 menu = st.sidebar.radio(
     "Select Module",
     [
@@ -160,7 +175,7 @@ menu = st.sidebar.radio(
     ]
 )
 
-# Reuse connection
+# Reuse SQLite connection
 conn = sqlite3.connect(DB)
 c = conn.cursor()
 
@@ -179,6 +194,29 @@ if menu == "Candidate Tracker":
             )
             conn.commit()
             st.success("Candidate added.")
+
+# --- Approvals Workflow ---
+elif menu == "Approvals Workflow":
+    st.markdown("<h1 style='color: #04b4ac;'>Approvals Workflow</h1>", unsafe_allow_html=True)
+    approvals = c.execute("SELECT * FROM approvals").fetchall()
+    st.write("Pending Approvals:")
+    for approval in approvals:
+        st.write(f"Approval ID: {approval[0]}, Employee: {approval[1]}, Status: {approval[2]}")
+
+# --- Admin Assets / Travel Requests ---
+elif menu == "Admin Assets / Travel Requests":
+    st.markdown("<h1 style='color: #04b4ac;'>Admin Assets / Travel Requests</h1>", unsafe_allow_html=True)
+    with st.form("asset_form"):
+        employee = st.text_input("Employee Name")
+        request_type = st.selectbox("Request Type", ["Asset Allocation", "Travel Request"])
+        details = st.text_area("Details")
+        if st.form_submit_button("Submit Request"):
+            c.execute(
+                "INSERT INTO admin_requests (employee, request_type, details) VALUES (?, ?, ?)",
+                (employee, request_type, details)
+            )
+            conn.commit()
+            st.success("Request submitted successfully!")
 
 # --- Interview Assessment ---
 elif menu == "Interview Assessment":
@@ -216,5 +254,3 @@ elif menu == "Interview Assessment":
                 )
                 conn.commit()
                 st.success("Interview saved!")
-
-# Additional features (Recruitment Snapshot, Monthly MIS, Attendance, etc.) are also integrated.
