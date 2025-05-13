@@ -139,14 +139,15 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # --- Sidebar and Authentication ---
-if "email" not in st.session_state:
-    with st.form(key="login_form"):
-        st.markdown("<h1 style='color: #04b4ac;'>HR Login</h1>", unsafe_allow_html=True)
-        email = st.text_input("Enter HR Email")
-        password = st.text_input("Password", type="password")
-        submit_button = st.form_submit_button("Login")  # This adds the submit button
+ALLOWED_HR_EMAILS = ["rsomanchi@tns.org", "sshankar@tns.org", "tkhedekar@tns.org", "hetalb@tns.org"]
+
+with st.form(key="login_form"):
+    st.markdown("<h1 style='color: #04b4ac;'>HR Login</h1>", unsafe_allow_html=True)
+    email = st.text_input("Enter HR Email")
+    password = st.text_input("Password", type="password")
+    submit_button = st.form_submit_button("Login")  # Submit button for the form
     
-     if submit_button:  # Check if the submit button was pressed
+    if submit_button:  # Check if the form was submitted
         if email in ALLOWED_HR_EMAILS and password == "hrsecure":
             st.session_state["email"] = email
             st.success("Login successful! Redirecting...")
