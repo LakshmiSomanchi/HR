@@ -96,7 +96,7 @@ st.markdown("""
             background-color: #c0f6fb;
         }
         .stSidebar h1 {
-            color: #04b4ac;
+            color: #211C4E;
         }
         .stButton button {
             background-color: #04b4ac;
