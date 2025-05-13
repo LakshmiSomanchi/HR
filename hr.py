@@ -2,12 +2,8 @@ import streamlit as st
 import sqlite3
 import datetime
 import os
-from io import BytesIO
-from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import letter
 
 DB = "hr.db"
-ALLOWED_HR_EMAILS = ["rsomanchi@tns.org", "hr2@example.com"]
 
 # Database table schema
 TABLES = {
@@ -20,23 +16,23 @@ TABLES = {
             location TEXT
         )
     """,
-    "interviews": """
-        CREATE TABLE IF NOT EXISTS interviews (
+    "offers": """
+        CREATE TABLE IF NOT EXISTS offers (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            candidate_id INTEGER,
-            date TEXT,
-            interviewer TEXT,
-            strengths TEXT,
-            weaknesses TEXT,
-            qualification INTEGER,
-            experience INTEGER,
-            comm_written INTEGER,
-            comm_oral INTEGER,
-            problem_solving INTEGER,
-            team_capabilities INTEGER,
-            comparison TEXT,
-            final_remarks TEXT,
-            decision TEXT
+            candidate_name TEXT,
+            offer_date TEXT,
+            position TEXT,
+            status TEXT
+        )
+    """,
+    "employees": """
+        CREATE TABLE IF NOT EXISTS employees (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            employee_name TEXT,
+            designation TEXT,
+            department TEXT,
+            doj TEXT,
+            salary REAL
         )
     """,
     "attendance": """
@@ -59,21 +55,31 @@ TABLES = {
             total_salary REAL
         )
     """,
-    "employees": """
-    CREATE TABLE IF NOT EXISTS employees (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        status TEXT,
-        employee_code TEXT,
-        employee_name TEXT,
-        designation TEXT,
-        job_title TEXT,
-        grade TEXT,
-        doj TEXT,
-        confirmation_due_date TEXT,
-        project TEXT,
-        actual_project TEXT
-    )
-"""
+    "exits": """
+        CREATE TABLE IF NOT EXISTS exits (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            employee TEXT,
+            exit_date TEXT,
+            reason TEXT,
+            status TEXT
+        )
+    """,
+    "admin_requests": """
+        CREATE TABLE IF NOT EXISTS admin_requests (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            employee TEXT,
+            request_type TEXT,
+            details TEXT
+        )
+    """,
+    "approvals": """
+        CREATE TABLE IF NOT EXISTS approvals (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            employee TEXT,
+            approval_type TEXT,
+            status TEXT
+        )
+    """
 }
 
 # Initialize the database
@@ -84,69 +90,7 @@ def init_db():
 
 init_db()
 
-# Add custom CSS styling for dark background with high contrast
-st.markdown("""
-    <style>
-        body {
-            background-color: #c0f6fb;
-            color: #ffffff;
-            font-family: Arial, sans-serif;
-        }
-        .stSidebar {
-            background-color: #c0f6fb;
-        }
-        .stSidebar h1 {
-            color: #211C4E;
-        }
-        .stButton button {
-            background-color: #04b4ac;
-            color: #ffffff;
-            border-radius: 5px;
-            border: none;
-        }
-        .stButton button:hover {
-            background-color: #dc6262;
-        }
-        .stTextInput > div > label {
-            color: #04b4ac;
-        }
-        .stSlider > div > label {
-            color: #04b4ac;
-        }
-        .stSelectbox > div {
-            color: #ffffff;
-        }
-        .stTitle {
-            color: #211C4E;
-        }
-    </style>
-""", unsafe_allow_html=True)
-
-# --- Login and Sidebar ---
-if "email" not in st.session_state:
-    with st.form(key="login_form"):
-        st.markdown("<h1 style='color: #04b4ac;'>HR Login</h1>", unsafe_allow_html=True)
-        email = st.text_input("Enter HR Email")
-        password = st.text_input("Password", type="password")
-        if st.form_submit_button("Login"):
-            if email in ALLOWED_HR_EMAILS and password == "hrsecure":
-                st.session_state["email"] = email
-                st.success("Login successful! Redirecting...")
-                st.rerun()  # ✅ Restart session
-                st.stop()   # ✅ Prevent continuing execution
-            else:
-                st.error("Unauthorized email or password")
-    st.stop()
-
-# ✅ Show sidebar only if logged in
-st.sidebar.title("HR Dashboard")
-st.sidebar.image("TechnoServe_logo.png", use_container_width=True)
-
-if st.sidebar.button("Logout"):
-    st.session_state.clear()
-    st.rerun()
-
-# ✅ Single use of sidebar menu
+# Sidebar menu
 menu = st.sidebar.radio(
     "Select Module",
     [
@@ -178,46 +122,53 @@ if menu == "Candidate Tracker":
             conn.commit()
             st.success("Candidate added.")
 
-# --- Interview Assessment ---
-elif menu == "Interview Assessment":
-    st.markdown("<h1 style='color: #04b4ac;'>Interview Assessment</h1>", unsafe_allow_html=True)
-    candidates = c.execute("SELECT id, name FROM candidates").fetchall()
-    candidate_dict = {n: i for i, n in candidates}
-    selected = st.selectbox("Select Candidate", list(candidate_dict))
-    if selected:
-        cid = candidate_dict[selected]
-        with st.form("interview_form"):
-            date = st.date_input("Date", datetime.date.today())
-            interviewer = st.text_input("Interviewer")
-            strengths = st.text_area("Strengths")
-            weaknesses = st.text_area("Weaknesses")
-            qualification = st.slider("Qualification", 1, 5, 3)
-            experience = st.slider("Experience", 1, 5, 3)
-            comm_written = st.slider("Written Communication", 1, 5, 3)
-            comm_oral = st.slider("Oral Communication", 1, 5, 3)
-            problem_solving = st.slider("Problem Solving", 1, 5, 3)
-            team_capabilities = st.slider("Team Capabilities", 1, 5, 3)
-            comparison = st.selectbox("Comparison", ["Below Par", "At Par", "Above Par"])
-            final_remarks = st.text_area("Final Remarks")
-            decision = st.selectbox("Decision", ["Recommended for Hire", "Reject", "On Hold"])
-            if st.form_submit_button("Save Interview"):
-                c.execute(
-                    """
-                    INSERT INTO interviews (candidate_id, date, interviewer, strengths, weaknesses,
-                    qualification, experience, comm_written, comm_oral, problem_solving,
-                    team_capabilities, comparison, final_remarks, decision)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                    """,
-                    (cid, str(date), interviewer, strengths, weaknesses, qualification, experience,
-                     comm_written, comm_oral, problem_solving, team_capabilities, comparison,
-                     final_remarks, decision)
-                )
-                conn.commit()
-                st.success("Interview saved!")
+# --- Offer Tracker ---
+elif menu == "Offer Tracker":
+    st.markdown("<h1 style='color: #04b4ac;'>Offer Tracker</h1>", unsafe_allow_html=True)
+    with st.form("offer_form"):
+        candidate_name = st.text_input("Candidate Name")
+        offer_date = st.date_input("Offer Date")
+        position = st.text_input("Position Offered")
+        status = st.selectbox("Offer Status", ["Pending", "Accepted", "Declined"])
+        if st.form_submit_button("Save Offer"):
+            c.execute(
+                "INSERT INTO offers (candidate_name, offer_date, position, status) VALUES (?, ?, ?, ?)",
+                (candidate_name, str(offer_date), position, status)
+            )
+            conn.commit()
+            st.success("Offer saved successfully!")
 
-# --- Attendance Tracker ---
-elif menu == "Attendance Tracker":
-    st.markdown("<h1 style='color: #04b4ac;'>Attendance Tracker</h1>", unsafe_allow_html=True)
+# --- Employee Masterfile ---
+elif menu == "Employee Masterfile":
+    st.markdown("<h1 style='color: #04b4ac;'>Employee Masterfile</h1>", unsafe_allow_html=True)
+    employees = c.execute("SELECT * FROM employees").fetchall()
+    st.write("List of Employees:")
+    for emp in employees:
+        st.write(f"ID: {emp[0]}, Name: {emp[1]}, Designation: {emp[2]}, Department: {emp[3]}")
+    with st.form("employee_form"):
+        name = st.text_input("Employee Name")
+        designation = st.text_input("Designation")
+        department = st.text_input("Department")
+        doj = st.date_input("Date of Joining")
+        salary = st.number_input("Salary", min_value=0.0, step=1000.0)
+        if st.form_submit_button("Add Employee"):
+            c.execute(
+                "INSERT INTO employees (employee_name, designation, department, doj, salary) VALUES (?, ?, ?, ?, ?)",
+                (name, designation, department, str(doj), salary)
+            )
+            conn.commit()
+            st.success("Employee added successfully!")
+
+# --- Post-Joining Uploads ---
+elif menu == "Post-Joining Uploads":
+    st.markdown("<h1 style='color: #04b4ac;'>Post-Joining Uploads</h1>", unsafe_allow_html=True)
+    uploaded_file = st.file_uploader("Upload Employee Documents", type=["pdf", "docx", "xlsx"])
+    if uploaded_file:
+        st.success(f"File {uploaded_file.name} uploaded successfully!")
+
+# --- Attendance & Leave Tracker ---
+elif menu == "Attendance & Leave Tracker":
+    st.markdown("<h1 style='color: #04b4ac;'>Attendance & Leave Tracker</h1>", unsafe_allow_html=True)
     with st.form("attendance_form"):
         employee = st.text_input("Employee Name")
         date = st.date_input("Date", datetime.date.today())
@@ -229,11 +180,11 @@ elif menu == "Attendance Tracker":
                 (employee, str(date), int(present), leave_type)
             )
             conn.commit()
-            st.success("Attendance marked!")
+            st.success("Attendance marked successfully!")
 
-# --- Payroll Data ---
-elif menu == "Payroll Data":
-    st.markdown("<h1 style='color: #04b4ac;'>Payroll Data</h1>", unsafe_allow_html=True)
+# --- Payroll Data Preparation ---
+elif menu == "Payroll Data Preparation":
+    st.markdown("<h1 style='color: #04b4ac;'>Payroll Data Preparation</h1>", unsafe_allow_html=True)
     with st.form("payroll_form"):
         employee = st.text_input("Employee Name")
         month = st.text_input("Month (e.g., May 2025)")
@@ -248,66 +199,51 @@ elif menu == "Payroll Data":
                 (employee, month, base_salary, pf, esic, total_salary)
             )
             conn.commit()
-            st.success("Payroll data saved!")
-# ✅ Final Complete Streamlit HR System (hr.py)
+            st.success("Payroll data saved successfully!")
 
-# --- Recruitment Snapshot ---
-elif menu == "Recruitment Snapshot":
-    st.markdown("<h1 style='color: #04b4ac;'>Recruitment Snapshot</h1>", unsafe_allow_html=True)
-    st.markdown("### Upload or View Recruitment Snapshot")
+# --- Exit Management Tracker ---
+elif menu == "Exit Management Tracker":
+    st.markdown("<h1 style='color: #04b4ac;'>Exit Management Tracker</h1>", unsafe_allow_html=True)
+    with st.form("exit_form"):
+        employee = st.text_input("Employee Name")
+        exit_date = st.date_input("Exit Date")
+        reason = st.text_area("Reason for Exit")
+        status = st.selectbox("Exit Status", ["Pending", "Completed"])
+        if st.form_submit_button("Save Exit Details"):
+            c.execute(
+                "INSERT INTO exits (employee, exit_date, reason, status) VALUES (?, ?, ?, ?)",
+                (employee, str(exit_date), reason, status)
+            )
+            conn.commit()
+            st.success("Exit details saved successfully!")
 
-    upload_file = st.file_uploader("Upload Recruitment Snapshot Excel", type=["xlsx"])
-    if upload_file:
-        with open("Recruitment_Snapshot.xlsx", "wb") as f:
-            f.write(upload_file.read())
-        st.success("Uploaded successfully.")
+# --- Downloadable Reports ---
+elif menu == "Downloadable Reports":
+    st.markdown("<h1 style='color: #04b4ac;'>Downloadable Reports</h1>", unsafe_allow_html=True)
+    st.write("Generate and download reports.")
+    report_data = c.execute("SELECT * FROM employees").fetchall()
+    csv = "\n".join([",".join(map(str, row)) for row in report_data])
+    st.download_button("Download Employee Report", data=csv, file_name="employee_report.csv", mime="text/csv")
 
-    if os.path.exists("Recruitment_Snapshot.xlsx"):
-        df = pd.read_excel("Recruitment_Snapshot.xlsx", sheet_name="Recruitment Snapshot")
+# --- Admin Assets / Travel Requests ---
+elif menu == "Admin Assets / Travel Requests":
+    st.markdown("<h1 style='color: #04b4ac;'>Admin Assets / Travel Requests</h1>", unsafe_allow_html=True)
+    with st.form("asset_form"):
+        employee = st.text_input("Employee Name")
+        request_type = st.selectbox("Request Type", ["Asset Allocation", "Travel Request"])
+        details = st.text_area("Details")
+        if st.form_submit_button("Submit Request"):
+            c.execute(
+                "INSERT INTO admin_requests (employee, request_type, details) VALUES (?, ?, ?)",
+                (employee, request_type, details)
+            )
+            conn.commit()
+            st.success("Request submitted successfully!")
 
-        with st.expander("🔍 Filters"):
-            recruiter = st.selectbox("Recruiter", ["All"] + sorted(df["Recruiter"].dropna().unique().tolist()))
-            project = st.selectbox("Project", ["All"] + sorted(df["Project"].dropna().unique().tolist()))
-            if recruiter != "All":
-                df = df[df["Recruiter"] == recruiter]
-            if project != "All":
-                df = df[df["Project"] == project]
-
-        st.dataframe(df)
-
-        # Key Metrics
-        col1, col2, col3 = st.columns(3)
-        col1.metric("Offers Made", int(df["Total Offers Made"].sum()))
-        col2.metric("Accepted", int(df["Offer Accepted"].sum()))
-        col3.metric("Open Positions", int(df["Positions Open"].sum()))
-
-        # Download
-        csv = df.to_csv(index=False).encode('utf-8')
-        st.download_button("📥 Download CSV", data=csv, file_name="recruitment_snapshot.csv", mime="text/csv")
-    else:
-        st.info("Please upload the 'Recruitment Snapshot' Excel file to begin.")
-
-# --- Monthly MIS ---
-elif menu == "Monthly MIS":
-    st.markdown("<h1 style='color: #04b4ac;'>Monthly Recruitment Progress</h1>", unsafe_allow_html=True)
-
-    upload_mis = st.file_uploader("Upload Monthly MIS Excel", type=["xlsx"], key="mis")
-    if upload_mis:
-        with open("Monthly_MIS.xlsx", "wb") as f:
-            f.write(upload_mis.read())
-        st.success("Uploaded successfully.")
-
-    if os.path.exists("Monthly_MIS.xlsx"):
-        df = pd.read_excel("Monthly_MIS.xlsx", sheet_name="Monthly MIS")
-        df["Month"] = pd.to_datetime(df["Month"])
-
-        chart_data = df[["Month", "Total Positions", "Open Positions", "Tot No of Positions Closed"]].dropna()
-        chart_data.set_index("Month", inplace=True)
-
-        st.line_chart(chart_data)
-        st.dataframe(df)
-
-        csv = df.to_csv(index=False).encode('utf-8')
-        st.download_button("📥 Download Monthly MIS", data=csv, file_name="monthly_mis.csv", mime="text/csv")
-    else:
-        st.info("Please upload the 'Monthly MIS' Excel file to view progress.")
+# --- Approvals Workflow ---
+elif menu == "Approvals Workflow":
+    st.markdown("<h1 style='color: #04b4ac;'>Approvals Workflow</h1>", unsafe_allow_html=True)
+    approvals = c.execute("SELECT * FROM approvals").fetchall()
+    st.write("Pending Approvals:")
+    for approval in approvals:
+        st.write(f"Approval ID: {approval[0]}, Employee: {approval[1]}, Status: {approval[2]}")
