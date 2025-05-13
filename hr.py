@@ -227,43 +227,6 @@ elif menu == "Employee Masterfile":
             conn.commit()
             st.success("Employee added successfully!")
 
-# --- Interview Assessment ---
-elif menu == "Interview Assessment":
-    st.markdown("<h1 style='color: #04b4ac;'>Interview Assessment</h1>", unsafe_allow_html=True)
-    candidates = c.execute("SELECT id, name FROM candidates").fetchall()
-    candidate_dict = {n: i for i, n in candidates}
-    selected = st.selectbox("Select Candidate", list(candidate_dict))
-    if selected:
-        cid = candidate_dict[selected]
-        with st.form("interview_form"):
-            date = st.date_input("Date", datetime.date.today())
-            interviewer = st.text_input("Interviewer")
-            strengths = st.text_area("Strengths")
-            weaknesses = st.text_area("Weaknesses")
-            qualification = st.slider("Qualification", 1, 5, 3)
-            experience = st.slider("Experience", 1, 5, 3)
-            comm_written = st.slider("Written Communication", 1, 5, 3)
-            comm_oral = st.slider("Oral Communication", 1, 5, 3)
-            problem_solving = st.slider("Problem Solving", 1, 5, 3)
-            team_capabilities = st.slider("Team Capabilities", 1, 5, 3)
-            comparison = st.selectbox("Comparison", ["Below Par", "At Par", "Above Par"])
-            final_remarks = st.text_area("Final Remarks")
-            decision = st.selectbox("Decision", ["Recommended for Hire", "Reject", "On Hold"])
-            if st.form_submit_button("Save Interview"):
-                c.execute(
-                    """
-                    INSERT INTO interviews (candidate_id, date, interviewer, strengths, weaknesses,
-                    qualification, experience, comm_written, comm_oral, problem_solving,
-                    team_capabilities, comparison, final_remarks, decision)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                    """,
-                    (cid, str(date), interviewer, strengths, weaknesses, qualification, experience,
-                     comm_written, comm_oral, problem_solving, team_capabilities, comparison,
-                     final_remarks, decision)
-                )
-                conn.commit()
-                st.success("Interview assessment saved!")
-
 # --- Payroll Data ---
 elif menu == "Payroll Data":
     st.markdown("<h1 style='color: #04b4ac;'>Payroll Data</h1>", unsafe_allow_html=True)
@@ -305,27 +268,6 @@ elif menu == "Approvals Workflow":
     st.write("Pending Approvals:")
     for approval in approvals:
         st.write(f"Approval ID: {approval[0]}, Employee: {approval[1]}, Approval Type: {approval[2]}, Status: {approval[3]}")
-
-# --- Employee Masterfiles ---
-elif menu == "Employee Masterfiles":
-    st.markdown("<h1 style='color: #04b4ac;'>Employee Masterfiles</h1>", unsafe_allow_html=True)
-    with st.form("employee_form"):
-        employee_code = st.text_input("Employee Code")
-        name = st.text_input("Employee Name")
-        designation = st.text_input("Designation")
-        job_title = st.text_input("Job Title")
-        grade = st.text_input("Grade")
-        doj = st.date_input("Date of Joining")
-        confirmation_due_date = st.date_input("Confirmation Due Date")
-        project = st.text_input("Project")
-        actual_project = st.text_input("Actual Project")
-        if st.form_submit_button("Add Employee"):
-            c.execute(
-                "INSERT INTO employees (employee_code, employee_name, designation, job_title, grade, doj, confirmation_due_date, project, actual_project) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                (employee_code, name, designation, job_title, grade, str(doj), str(confirmation_due_date), project, actual_project)
-            )
-            conn.commit()
-            st.success("Employee added successfully!")
 
 # --- Attendance Tracker ---
 elif menu == "Attendance Tracker":
@@ -389,44 +331,6 @@ elif menu == "Downloadable Reports":
         st.download_button("Download Employee Report", data=csv, file_name="employee_report.csv", mime="text/csv")
     else:
         st.info("No data available for download.")
-# --- Candidate Tracker ---
-if menu == "Candidate Tracker":
-    st.markdown("<h1 style='color: #04b4ac;'>Candidate Tracker</h1>", unsafe_allow_html=True)
-    with st.form("add_candidate"):
-        name = st.text_input("Name")
-        designation = st.text_input("Designation")
-        project = st.text_input("Project")
-        location = st.text_input("Location")
-        if st.form_submit_button("Save Candidate"):
-            c.execute(
-                "INSERT INTO candidates (name, designation, project, location) VALUES (?, ?, ?, ?)",
-                (name, designation, project, location)
-            )
-            conn.commit()
-            st.success("Candidate added.")
-
-# --- Approvals Workflow ---
-elif menu == "Approvals Workflow":
-    st.markdown("<h1 style='color: #04b4ac;'>Approvals Workflow</h1>", unsafe_allow_html=True)
-    approvals = c.execute("SELECT * FROM approvals").fetchall()
-    st.write("Pending Approvals:")
-    for approval in approvals:
-        st.write(f"Approval ID: {approval[0]}, Employee: {approval[1]}, Status: {approval[2]}")
-
-# --- Admin Assets / Travel Requests ---
-elif menu == "Admin Assets / Travel Requests":
-    st.markdown("<h1 style='color: #04b4ac;'>Admin Assets / Travel Requests</h1>", unsafe_allow_html=True)
-    with st.form("asset_form"):
-        employee = st.text_input("Employee Name")
-        request_type = st.selectbox("Request Type", ["Asset Allocation", "Travel Request"])
-        details = st.text_area("Details")
-        if st.form_submit_button("Submit Request"):
-            c.execute(
-                "INSERT INTO admin_requests (employee, request_type, details) VALUES (?, ?, ?)",
-                (employee, request_type, details)
-            )
-            conn.commit()
-            st.success("Request submitted successfully!")
 
 # --- Interview Assessment ---
 elif menu == "Interview Assessment":
