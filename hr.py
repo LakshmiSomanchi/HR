@@ -333,7 +333,7 @@ elif menu == "Interview Assessment":
     selected = st.selectbox("Select Candidate", list(candidate_dict))
     if selected:
         cid = candidate_dict[selected]
-        with st.form("interview_form"):
+          with st.form("interview_form"):
             date = st.date_input("Date", datetime.date.today())
             interviewer = st.text_input("Interviewer")
             strengths = st.text_area("Strengths")
