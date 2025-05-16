@@ -115,7 +115,7 @@ st.markdown("""
             background-color: rgba(192, 246, 251, 0.8);  /* semi-transparent overlay for content readability */
         }
         .stSidebar {
-            background-color: #c0f6fb;
+            background-color: #ffffff;
         }
         .stSidebar h1 {
             color: #211C4E;
