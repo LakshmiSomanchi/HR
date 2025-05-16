@@ -103,7 +103,7 @@ init_db()
 st.markdown("""
     <style>
         body {
-            background-image: url('https://example.com/your-background-image.jpg');
+            background-image: url('https://raw.githubusercontent.com/LakshmiSomanchi/HR/refs/heads/main/hr.jpg');
             background-size: cover;
             background-repeat: no-repeat;
             background-attachment: fixed;
