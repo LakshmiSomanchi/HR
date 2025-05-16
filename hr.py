@@ -139,13 +139,13 @@ st.markdown("""
             backdrop-filter: blur(5px);  /* Blur effect */
         }
         .stSidebar {
-            background-color: rgba(171, 246, 251, 0.8); /* Semi-transparent sidebar */
+            background-color: rgba(239, 128, 107); /* Semi-transparent sidebar */
         }
         .stSidebar h1 {
             color: #211C4E;
         }
         .stButton button {
-            background-color: #f0806b;
+            background-color: #211C4E;
             color: #ffffff;
             border-radius: 5px;
             border: none;
