@@ -8,7 +8,7 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 
 DB = "hr.db"
-ALLOWED_HR_EMAILS = ["rsomanchi@tns.org","sshankar@tns.org","tkhedekar@tns.org","hetalb@tns.org"]
+ALLOWED_HR_EMAILS = ["rsomanchi@tns.org", "sshankar@tns.org", "tkhedekar@tns.org", "hetalb@tns.org"]
 
 # Database table schema
 TABLES = {
@@ -99,6 +99,7 @@ def init_db():
             conn.execute(ddl)
 
 init_db()
+
 # Add custom CSS for styling with background image
 st.markdown("""
     <style>
@@ -112,10 +113,10 @@ st.markdown("""
             font-family: Arial, sans-serif;
         }
         .stApp {
-            background-color: rgba(192, 246, 251, 0.9);  /* semi-transparent overlay for content readability */
+            background-color: transparent;  /* No overlay */
         }
         .stSidebar {
-            background-color: #ABF6FB;
+            background-color: rgba(171, 246, 251, 0.8); /* Semi-transparent sidebar */
         }
         .stSidebar h1 {
             color: #211C4E;
@@ -143,7 +144,6 @@ st.markdown("""
         }
     </style>
 """, unsafe_allow_html=True)
-
 
 # --- Sidebar and Authentication ---
 if "email" not in st.session_state:
@@ -236,6 +236,7 @@ elif menu == "Employee Masterfile":
             conn.commit()
             st.success("Employee added successfully!")
 
+# --- Attendance Tracker ---
 elif menu == "Attendance Tracker":
     st.markdown("<h1 style='color: #04b4ac;'>Attendance Tracker</h1>", unsafe_allow_html=True)
     with st.form("attendance_form"):
@@ -251,6 +252,7 @@ elif menu == "Attendance Tracker":
             conn.commit()
             st.success("Attendance marked successfully!")
 
+# --- Approvals Workflow ---
 elif menu == "Approvals Workflow":
     st.markdown("<h1 style='color: #04b4ac;'>Approvals Workflow</h1>", unsafe_allow_html=True)
     approvals = c.execute("SELECT * FROM approvals").fetchall()
@@ -258,6 +260,7 @@ elif menu == "Approvals Workflow":
     for approval in approvals:
         st.write(f"Approval ID: {approval[0]}, Employee: {approval[1]}, Approval Type: {approval[2]}, Status: {approval[3]}")
 
+# --- Downloadable Reports ---
 elif menu == "Downloadable Reports":
     st.markdown("<h1 style='color: #04b4ac;'>Downloadable Reports</h1>", unsafe_allow_html=True)
     st.write("### Generate and Download Reports")
@@ -306,46 +309,6 @@ elif menu == "Admin Assets / Travel Requests":
             conn.commit()
             st.success("Request submitted successfully!")
 
-# --- Approvals Workflow ---
-elif menu == "Approvals Workflow":
-    st.markdown("<h1 style='color: #04b4ac;'>Approvals Workflow</h1>", unsafe_allow_html=True)
-    approvals = c.execute("SELECT * FROM approvals").fetchall()
-    st.write("Pending Approvals:")
-    for approval in approvals:
-        st.write(f"Approval ID: {approval[0]}, Employee: {approval[1]}, Approval Type: {approval[2]}, Status: {approval[3]}")
-
-# --- Attendance Tracker ---
-elif menu == "Attendance Tracker":
-    st.markdown("<h1 style='color: #04b4ac;'>Attendance Tracker</h1>", unsafe_allow_html=True)
-    with st.form("attendance_form"):
-        employee = st.text_input("Employee Name")
-        date = st.date_input("Date", datetime.date.today())
-        present = st.checkbox("Present")
-        leave_type = st.selectbox("Leave Type", ["None", "Sick Leave", "Casual Leave", "Earned Leave"])
-        if st.form_submit_button("Mark Attendance"):
-            c.execute(
-                "INSERT INTO attendance (employee, date, present, leave_type) VALUES (?, ?, ?, ?)",
-                (employee, str(date), int(present), leave_type)
-            )
-            conn.commit()
-            st.success("Attendance marked successfully!")
-
-# --- Post-Joining Documents ---
-elif menu == "Post-Joining Documents":
-    st.markdown("<h1 style='color: #04b4ac;'>Post-Joining Documents</h1>", unsafe_allow_html=True)
-    uploaded_file = st.file_uploader("Upload Employee Documents", type=["pdf", "docx", "xlsx"])
-    if uploaded_file:
-        with st.form("post_joining_form"):
-            employee = st.text_input("Employee Name")
-            document_name = st.text_input("Document Name")
-            if st.form_submit_button("Save Document"):
-                c.execute(
-                    "INSERT INTO post_joining_documents (employee, document_name, uploaded_date) VALUES (?, ?, ?)",
-                    (employee, document_name, str(datetime.date.today()))
-                )
-                conn.commit()
-                st.success(f"Document '{document_name}' for {employee} saved successfully!")
-
 # --- Exit Management ---
 elif menu == "Exit Management":
     st.markdown("<h1 style='color: #04b4ac;'>Exit Management</h1>", unsafe_allow_html=True)
@@ -361,21 +324,6 @@ elif menu == "Exit Management":
             )
             conn.commit()
             st.success("Exit details saved successfully!")
-
-# --- Downloadable Reports ---
-elif menu == "Downloadable Reports":
-    st.markdown("<h1 style='color: #04b4ac;'>Downloadable Reports</h1>", unsafe_allow_html=True)
-    st.write("### Generate and Download Reports")
-    employees = c.execute("SELECT * FROM employees").fetchall()
-    if employees:
-        df = pd.DataFrame(employees, columns=[
-            "ID", "Employee Code", "Name", "Designation", "Job Title",
-            "Grade", "Date of Joining", "Confirmation Due Date", "Project", "Actual Project"
-        ])
-        csv = df.to_csv(index=False).encode('utf-8')
-        st.download_button("Download Employee Report", data=csv, file_name="employee_report.csv", mime="text/csv")
-    else:
-        st.info("No data available for download.")
 
 # --- Interview Assessment ---
 elif menu == "Interview Assessment":
@@ -413,3 +361,6 @@ elif menu == "Interview Assessment":
                 )
                 conn.commit()
                 st.success("Interview saved!")
+
+# Close the database connection
+conn.close()
