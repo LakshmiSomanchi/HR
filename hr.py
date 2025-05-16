@@ -122,7 +122,7 @@ def init_db():
 
 init_db()
 
-# Add custom CSS for styling with background image
+# Add custom CSS for styling with background image and blur effect
 st.markdown("""
     <style>
         body {
@@ -135,10 +135,11 @@ st.markdown("""
             font-family: Arial, sans-serif;
         }
         .stApp {
-            background-color: transparent;  /* No overlay */
+            background-color: rgba(255, 255, 255, 0.2);  /* Light overlay for readability */
+            backdrop-filter: blur(5px);  /* Blur effect */
         }
         .stSidebar {
-            background-color: 195, 235, 255, 1; /* Semi-transparent sidebar */
+            background-color: rgba(171, 246, 251, 0.8); /* Semi-transparent sidebar */
         }
         .stSidebar h1 {
             color: #211C4E;
