@@ -99,12 +99,7 @@ def init_db():
             conn.execute(ddl)
 
 init_db()
-
 # Add custom CSS for styling with background image
-st.markdown("""
-    <style>
-        body {
-            background-image: url('# Add custom CSS for styling with background image
 st.markdown("""
     <style>
         body {
@@ -117,7 +112,7 @@ st.markdown("""
             font-family: Arial, sans-serif;
         }
         .stApp {
-            background-color: rgba(192, 246, 251, 0.8);  /* semi-transparent background overlay */
+            background-color: rgba(192, 246, 251, 0.8);  /* semi-transparent overlay for content readability */
         }
         .stSidebar {
             background-color: #c0f6fb;
@@ -148,46 +143,7 @@ st.markdown("""
         }
     </style>
 """, unsafe_allow_html=True)
-');
-            background-size: cover;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-            background-position: center;
-            color: #ffffff;
-            font-family: Arial, sans-serif;
-        }
-        .stApp {
-            background-color: rgba(192, 246, 251, 0.8);  /* semi-transparent background overlay */
-        }
-        .stSidebar {
-            background-color: #c0f6fb;
-        }
-        .stSidebar h1 {
-            color: #211C4E;
-        }
-        .stButton button {
-            background-color: #04b4ac;
-            color: #ffffff;
-            border-radius: 5px;
-            border: none;
-        }
-        .stButton button:hover {
-            background-color: #dc6262;
-        }
-        .stTextInput > div > label {
-            color: #04b4ac;
-        }
-        .stSlider > div > label {
-            color: #04b4ac;
-        }
-        .stSelectbox > div {
-            color: #ffffff;
-        }
-        .stTitle {
-            color: #211C4E;
-        }
-    </style>
-""", unsafe_allow_html=True)
+
 
 # --- Sidebar and Authentication ---
 if "email" not in st.session_state:
