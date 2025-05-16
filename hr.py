@@ -138,7 +138,7 @@ st.markdown("""
             background-color: transparent;  /* No overlay */
         }
         .stSidebar {
-            background-color: rgba(171, 246, 251, 1); /* Semi-transparent sidebar */
+            background-color: 195, 235, 255, 1; /* Semi-transparent sidebar */
         }
         .stSidebar h1 {
             color: #211C4E;
