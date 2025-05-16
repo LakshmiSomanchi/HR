@@ -112,10 +112,10 @@ st.markdown("""
             font-family: Arial, sans-serif;
         }
         .stApp {
-            background-color: rgba(192, 246, 251, 0.8);  /* semi-transparent overlay for content readability */
+            background-color: rgba(192, 246, 251, 0.9);  /* semi-transparent overlay for content readability */
         }
         .stSidebar {
-            background-color: #ffffff;
+            background-color: #ABF6FB;
         }
         .stSidebar h1 {
             color: #211C4E;
