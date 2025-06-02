@@ -111,30 +111,7 @@ TABLES = {
             document_name TEXT,
             uploaded_date TEXT
         )
-    """,
-
- "meetings": """( 
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    title TEXT,
-    date TEXT,
-    time TEXT,
-    participants TEXT
-)
-""",
-
- "Team chat": """(
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user TEXT,
-    message TEXT,
-    timestamp TEXT
-)
-""",
- "to-do list": """(
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user TEXT,
-    task TEXT,
-    done INTEGER DEFAULT 0
-)
+    """
 }
 
 # Initialize the database
@@ -146,7 +123,7 @@ def init_db():
 init_db()
 
 # Add custom CSS for styling with background image and blur effect
-st.markdown(r"""
+st.markdown("""
     <style>
         body {
             background-image: url('https://raw.githubusercontent.com/LakshmiSomanchi/HR/refs/heads/main/hrr.jpg');
@@ -158,12 +135,11 @@ st.markdown(r"""
             font-family: Arial, sans-serif;
         }
         .stApp {
-            background-color: rgba(255, 255, 255, 0.2); /* Light overlay for readability */
-            -webkit-backdrop-filter: blur(5px);
-            backdrop-filter: blur(5px);
+            background-color: rgba(255, 255, 255, 0.2);  /* Light overlay for readability */
+            backdrop-filter: blur(5px);  /* Blur effect */
         }
         .stSidebar {
-            background-color: rgba(217, 209, 193);
+            background-color: rgba(217, 209, 193); /* Semi-transparent sidebar */
         }
         .stSidebar h1 {
             color: #211C4E;
@@ -407,83 +383,6 @@ elif menu == "Interview Assessment":
                 )
                 conn.commit()
                 st.success("Interview saved!")
-
-# --- Main HR Add-ons Menu ---
-st.sidebar.title("New Features")
-addon_menu = st.sidebar.selectbox("Select Addon", ["User Registration", "Meeting Scheduler", "Team Chat", "To-Do List"])
-
-if addon_menu == "User Registration":
-    st.header("Register New User")
-    with st.form("register_form"):
-        name = st.text_input("Full Name")
-        email = st.text_input("Email")
-        if st.form_submit_button("Register"):
-            try:
-                c.execute("INSERT INTO users (name, email) VALUES (?, ?)", (name, email))
-                conn.commit()
-                st.success("User registered successfully!")
-            except sqlite3.IntegrityError:
-                st.error("Email already exists.")
-
-elif addon_menu == "Meeting Scheduler":
-    st.header("Schedule a Meeting")
-    with st.form("meeting_form"):
-        title = st.text_input("Meeting Topic")
-        date = st.date_input("Meeting Date")
-        time = st.time_input("Meeting Time")
-        participants = st.text_area("Participants (comma-separated emails)")
-        if st.form_submit_button("Schedule Meeting"):
-            c.execute("INSERT INTO meetings (title, date, time, participants) VALUES (?, ?, ?, ?)",
-                      (title, str(date), str(time), participants))
-            conn.commit()
-            st.success("Meeting scheduled successfully!")
-
-    st.subheader("Upcoming Meetings")
-    meetings = c.execute("SELECT * FROM meetings ORDER BY date, time").fetchall()
-    for m in meetings:
-        st.write(f"📅 {m[1]} on {m[2]} at {m[3]} | Participants: {m[4]}")
-
-elif addon_menu == "Team Chat":
-    st.header("Team Chat Room")
-    name = st.text_input("Your Name")
-    msg = st.text_input("Type a message")
-    if st.button("Send") and name and msg:
-        c.execute("INSERT INTO chat (user, message, timestamp) VALUES (?, ?, ?)",
-                  (name, msg, str(datetime.datetime.now())))
-        conn.commit()
-
-    st.subheader("Chat Messages")
-    for u, m, t in c.execute("SELECT user, message, timestamp FROM chat ORDER BY id DESC LIMIT 50"):
-        st.write(f"**{u}** [{t}]: {m}")
-
-elif addon_menu == "To-Do List":
-    st.header("User To-Do Lists")
-    users = [row[0] for row in c.execute("SELECT DISTINCT user FROM todos").fetchall()]
-    if users:
-        tabs = st.tabs(users)
-        for i, user in enumerate(users):
-            with tabs[i]:
-                st.subheader(f"Tasks for {user}")
-                for task_id, task, done in c.execute("SELECT id, task, done FROM todos WHERE user = ?", (user,)):
-                    col1, col2, col3 = st.columns([0.6, 0.2, 0.2])
-                    with col1:
-                        st.checkbox(task, value=done, key=f"done_{task_id}", on_change=lambda i=task_id: c.execute("UPDATE todos SET done = NOT done WHERE id = ?", (i,)))
-                    with col2:
-                        if st.button("❌", key=f"del_{task_id}"):
-                            c.execute("DELETE FROM todos WHERE id = ?", (task_id,))
-                            conn.commit()
-                            st.experimental_rerun()
-                with st.form(f"form_{user}"):
-                    new_task = st.text_input("New Task", key=f"new_{user}")
-                    if st.form_submit_button("Add Task") and new_task:
-                        c.execute("INSERT INTO todos (user, task) VALUES (?, ?)", (user, new_task))
-                        conn.commit()
-                        st.experimental_rerun()
-    else:
-        st.info("No to-dos found. Please use Team Chat to create a user and send a message first.")
-
-conn.commit()
-conn.close()
 
 # Close the database connection
 conn.close()
