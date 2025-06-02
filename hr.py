@@ -112,42 +112,29 @@ TABLES = {
             uploaded_date TEXT
         )
     """,
-    # Initialize new tables
-conn = sqlite3.connect(DB)
-c = conn.cursor()
-c.execute("""
-CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT,
-    email TEXT UNIQUE
-)
-""")
-c.execute("""
-CREATE TABLE IF NOT EXISTS meetings (
+
+ "meetings" (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT,
     date TEXT,
     time TEXT,
     participants TEXT
 )
-""")
-c.execute("""
-CREATE TABLE IF NOT EXISTS chat (
+""",
+
+ "Team chat" (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user TEXT,
     message TEXT,
     timestamp TEXT
 )
-""")
-c.execute("""
-CREATE TABLE IF NOT EXISTS todos (
+""",
+ "to-do list" (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user TEXT,
     task TEXT,
     done INTEGER DEFAULT 0
 )
-""")
-conn.commit()
 }
 
 # Initialize the database
