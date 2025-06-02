@@ -205,6 +205,21 @@ menu = st.sidebar.radio(
 conn = sqlite3.connect(DB)
 c = conn.cursor()
 
+# To-Do List Functions
+def display_todo():
+    st.subheader("📝 To-Do List")
+    if "todo_list" not in st.session_state:
+        st.session_state.todo_list = []
+
+    with st.form("Add To-Do Item"):
+        todo_item = st.text_input("Enter a to-do item:")
+        if st.form_submit_button("Add"):
+            st.session_state.todo_list.append(todo_item)
+            st.rerun()
+
+    for i, item in enumerate(st.session_state.todo_list):
+        st.write(f"{i+1}. {item}")
+        
 # --- Candidate Tracker ---
 if menu == "Candidate Tracker":
     st.markdown("<h1 style='color: #04b4ac;'>Candidate Tracker</h1>", unsafe_allow_html=True)
