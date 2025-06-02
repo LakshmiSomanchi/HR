@@ -146,7 +146,7 @@ def init_db():
 init_db()
 
 # Add custom CSS for styling with background image and blur effect
-st.markdown("""
+st.markdown(r"""
     <style>
         body {
             background-image: url('https://raw.githubusercontent.com/LakshmiSomanchi/HR/refs/heads/main/hrr.jpg');
@@ -158,11 +158,12 @@ st.markdown("""
             font-family: Arial, sans-serif;
         }
         .stApp {
-            background-color: rgba(255, 255, 255, 0.2);  /* Light overlay for readability */
-            backdrop-filter: blur(5px);  /* Blur effect */
+            background-color: rgba(255, 255, 255, 0.2); /* Light overlay for readability */
+            -webkit-backdrop-filter: blur(5px);
+            backdrop-filter: blur(5px);
         }
         .stSidebar {
-            background-color: rgba(217, 209, 193); /* Semi-transparent sidebar */
+            background-color: rgba(217, 209, 193);
         }
         .stSidebar h1 {
             color: #211C4E;
