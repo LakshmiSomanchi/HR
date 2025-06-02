@@ -113,7 +113,7 @@ TABLES = {
         )
     """,
 
- "meetings" (
+ "meetings": """( 
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT,
     date TEXT,
@@ -122,14 +122,14 @@ TABLES = {
 )
 """,
 
- "Team chat" (
+ "Team chat": """(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user TEXT,
     message TEXT,
     timestamp TEXT
 )
 """,
- "to-do list" (
+ "to-do list": """(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user TEXT,
     task TEXT,
